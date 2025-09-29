@@ -1,0 +1,22 @@
+{
+  "embed_dim": 256,
+  "nb_heads": 4,
+  "src_hid_size": 1024,
+  "src_nb_layers": 4,
+  "trg_hid_size": 1024,
+  "trg_nb_layers": 4,
+  "dropout_p": 0.1,
+  "tie_trg_embed": true,
+  "label_smooth": 0.1,
+  "batch_size": 400,
+  "learning_rate": 0.001,
+  "max_epochs": 1000,
+  "max_updates": 10000,
+  "warmup_steps": 4000,
+  "weight_decay": 0.01,
+  "gradient_clip": 1.0,
+  "save_every": 10,
+  "eval_every": 5,
+  "max_length": 100,
+  "gradient_accumulation_steps": 2
+}
