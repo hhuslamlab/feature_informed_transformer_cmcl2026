@@ -1,0 +1,8 @@
+uv.lock
+TRAINING_OPTIMIZATIONS.md
+SETUP_COMPLETE.md
+README_TRAINING.md
+output/
+.venv/
+scripts/__pycache__/
+EMBEDDING_SUMMARY.md
