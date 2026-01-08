@@ -1,0 +1,1 @@
+Accuracy for 50L_50NL_2_1 test set: 58%

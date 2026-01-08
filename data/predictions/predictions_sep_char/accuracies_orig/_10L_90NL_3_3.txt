@@ -1,0 +1,1 @@
+Accuracy for 10L_90NL_3_3 test set: 52%

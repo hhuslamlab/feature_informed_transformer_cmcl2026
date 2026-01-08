@@ -1,0 +1,85 @@
+lemma,target_tag,correct,total,accuracy
+a n t e d e s ˈi ɾ,V;IND;PRS;1;PL,4,55,7.27
+a n t e d e s ˈi ɾ,V;IND;PRS;1;SG,15,55,27.27
+a n t e d e s ˈi ɾ,V;IND;PRS;2;PL,10,55,18.18
+a n t e d e s ˈi ɾ,V;IND;PRS;2;SG,29,55,52.73
+a n t e d e s ˈi ɾ,V;IND;PRS;3;PL,28,55,50.91
+a n t e d e s ˈi ɾ,V;IND;PRS;3;SG,26,55,47.27
+a n t e d e s ˈi ɾ,V;SBJV;PRS;1;PL,15,55,27.27
+a n t e d e s ˈi ɾ,V;SBJV;PRS;1;SG,15,55,27.27
+a n t e d e s ˈi ɾ,V;SBJV;PRS;2;PL,15,55,27.27
+a n t e d e s ˈi ɾ,V;SBJV;PRS;2;SG,15,55,27.27
+a n t e d e s ˈi ɾ,V;SBJV;PRS;3;PL,15,55,27.27
+a n t e d e s ˈi ɾ,V;SBJV;PRS;3;SG,15,55,27.27
+e n a l t e s ˈe ɾ,V;IND;PRS;1;PL,35,55,63.64
+e n a l t e s ˈe ɾ,V;IND;PRS;1;SG,42,55,76.36
+e n a l t e s ˈe ɾ,V;IND;PRS;2;PL,34,55,61.82
+e n a l t e s ˈe ɾ,V;IND;PRS;2;SG,8,55,14.55
+e n a l t e s ˈe ɾ,V;IND;PRS;3;PL,18,55,32.73
+e n a l t e s ˈe ɾ,V;IND;PRS;3;SG,21,55,38.18
+e n a l t e s ˈe ɾ,V;SBJV;PRS;1;PL,13,55,23.64
+e n a l t e s ˈe ɾ,V;SBJV;PRS;1;SG,44,55,80.0
+e n a l t e s ˈe ɾ,V;SBJV;PRS;2;PL,15,55,27.27
+e n a l t e s ˈe ɾ,V;SBJV;PRS;2;SG,41,55,74.55
+e n a l t e s ˈe ɾ,V;SBJV;PRS;3;PL,41,55,74.55
+e n a l t e s ˈe ɾ,V;SBJV;PRS;3;SG,24,55,43.64
+e n ɾ i k e s ˈe ɾ,V;IND;PRS;1;PL,45,55,81.82
+e n ɾ i k e s ˈe ɾ,V;IND;PRS;1;SG,25,55,45.45
+e n ɾ i k e s ˈe ɾ,V;IND;PRS;2;PL,44,55,80.0
+e n ɾ i k e s ˈe ɾ,V;IND;PRS;2;SG,21,55,38.18
+e n ɾ i k e s ˈe ɾ,V;IND;PRS;3;PL,35,55,63.64
+e n ɾ i k e s ˈe ɾ,V;IND;PRS;3;SG,32,55,58.18
+e n ɾ i k e s ˈe ɾ,V;SBJV;PRS;1;PL,3,55,5.45
+e n ɾ i k e s ˈe ɾ,V;SBJV;PRS;1;SG,19,55,34.55
+e n ɾ i k e s ˈe ɾ,V;SBJV;PRS;2;PL,5,55,9.09
+e n ɾ i k e s ˈe ɾ,V;SBJV;PRS;2;SG,27,55,49.09
+e n ɾ i k e s ˈe ɾ,V;SBJV;PRS;3;PL,16,55,29.09
+e n ɾ i k e s ˈe ɾ,V;SBJV;PRS;3;SG,15,55,27.27
+m a l d e s ˈi ɾ,V;IND;PRS;1;PL,10,55,18.18
+m a l d e s ˈi ɾ,V;IND;PRS;1;SG,15,55,27.27
+m a l d e s ˈi ɾ,V;IND;PRS;2;PL,10,55,18.18
+m a l d e s ˈi ɾ,V;IND;PRS;2;SG,28,55,50.91
+m a l d e s ˈi ɾ,V;IND;PRS;3;PL,27,55,49.09
+m a l d e s ˈi ɾ,V;IND;PRS;3;SG,29,55,52.73
+m a l d e s ˈi ɾ,V;SBJV;PRS;1;PL,15,55,27.27
+m a l d e s ˈi ɾ,V;SBJV;PRS;1;SG,15,55,27.27
+m a l d e s ˈi ɾ,V;SBJV;PRS;2;PL,15,55,27.27
+m a l d e s ˈi ɾ,V;SBJV;PRS;2;SG,15,55,27.27
+m a l d e s ˈi ɾ,V;SBJV;PRS;3;PL,15,55,27.27
+m a l d e s ˈi ɾ,V;SBJV;PRS;3;SG,15,55,27.27
+m u l s ˈe ɾ,V;IND;PRS;1;PL,55,55,100.0
+m u l s ˈe ɾ,V;IND;PRS;1;SG,36,55,65.45
+m u l s ˈe ɾ,V;IND;PRS;2;PL,55,55,100.0
+m u l s ˈe ɾ,V;IND;PRS;2;SG,54,55,98.18
+m u l s ˈe ɾ,V;IND;PRS;3;PL,39,55,70.91
+m u l s ˈe ɾ,V;IND;PRS;3;SG,43,55,78.18
+m u l s ˈe ɾ,V;SBJV;PRS;1;PL,55,55,100.0
+m u l s ˈe ɾ,V;SBJV;PRS;1;SG,47,55,85.45
+m u l s ˈe ɾ,V;SBJV;PRS;2;PL,55,55,100.0
+m u l s ˈe ɾ,V;SBJV;PRS;2;SG,53,55,96.36
+m u l s ˈe ɾ,V;SBJV;PRS;3;PL,42,55,76.36
+m u l s ˈe ɾ,V;SBJV;PRS;3;SG,51,55,92.73
+p a l i d e s ˈe ɾ,V;IND;PRS;1;PL,35,55,63.64
+p a l i d e s ˈe ɾ,V;IND;PRS;1;SG,21,55,38.18
+p a l i d e s ˈe ɾ,V;IND;PRS;2;PL,37,55,67.27
+p a l i d e s ˈe ɾ,V;IND;PRS;2;SG,6,55,10.91
+p a l i d e s ˈe ɾ,V;IND;PRS;3;PL,8,55,14.55
+p a l i d e s ˈe ɾ,V;IND;PRS;3;SG,29,55,52.73
+p a l i d e s ˈe ɾ,V;SBJV;PRS;1;PL,7,55,12.73
+p a l i d e s ˈe ɾ,V;SBJV;PRS;1;SG,44,55,80.0
+p a l i d e s ˈe ɾ,V;SBJV;PRS;2;PL,11,55,20.0
+p a l i d e s ˈe ɾ,V;SBJV;PRS;2;SG,45,55,81.82
+p a l i d e s ˈe ɾ,V;SBJV;PRS;3;PL,40,55,72.73
+p a l i d e s ˈe ɾ,V;SBJV;PRS;3;SG,39,55,70.91
+ɾ e a b a s t e s ˈe ɾ,V;IND;PRS;1;PL,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;IND;PRS;1;SG,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;IND;PRS;2;PL,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;IND;PRS;2;SG,4,55,7.27
+ɾ e a b a s t e s ˈe ɾ,V;IND;PRS;3;PL,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;IND;PRS;3;SG,12,55,21.82
+ɾ e a b a s t e s ˈe ɾ,V;SBJV;PRS;1;PL,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;SBJV;PRS;1;SG,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;SBJV;PRS;2;PL,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;SBJV;PRS;2;SG,2,55,3.64
+ɾ e a b a s t e s ˈe ɾ,V;SBJV;PRS;3;PL,0,55,0.0
+ɾ e a b a s t e s ˈe ɾ,V;SBJV;PRS;3;SG,0,55,0.0

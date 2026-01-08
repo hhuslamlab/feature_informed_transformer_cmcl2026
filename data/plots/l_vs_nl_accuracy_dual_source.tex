@@ -1,0 +1,153 @@
+% This file was created with tikzplotlib v0.10.1.
+\begin{tikzpicture}
+
+\definecolor{darkgray176}{RGB}{176,176,176}
+\definecolor{gray}{RGB}{128,128,128}
+\definecolor{lightgray204}{RGB}{204,204,204}
+\definecolor{orange}{RGB}{255,165,0}
+\definecolor{steelblue33135187}{RGB}{33,135,187}
+
+\begin{axis}[
+legend cell align={left},
+legend style={
+  fill opacity=0.8,
+  draw opacity=1,
+  text opacity=1,
+  at={(0.97,0.03)},
+  anchor=south east,
+  draw=lightgray204
+},
+tick align=outside,
+tick pos=left,
+title={Dual Source - L vs NL Accuracy},
+x grid style={darkgray176},
+xmajorgrids,
+xmin=0.7625, xmax=3.2375,
+xtick style={color=black},
+xtick={1,2,3},
+xticklabels={10\%L-90\%NL,50\%L-50\%NL,90\%L-10\%NL},
+y grid style={darkgray176},
+ylabel={Accuracy (in \%)},
+ymajorgrids,
+ymin=0, ymax=90.2545957233645,
+ytick style={color=black}
+]
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+1 21.8291739498757
+1 37.6253715046698
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+0.875 21.8291739498757
+1.125 21.8291739498757
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+0.875 37.6253715046698
+1.125 37.6253715046698
+};
+\addplot [semithick, orange, mark=*, mark size=3, mark options={solid}, only marks]
+table {%
+1 29.7272727272727
+};
+\addlegendentry{L-shape}
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+1 60.0443857110042
+1 64.5010688344504
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+0.875 60.0443857110042
+1.125 60.0443857110042
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+0.875 64.5010688344504
+1.125 64.5010688344504
+};
+\addplot [semithick, gray, mark=*, mark size=3, mark options={solid}, only marks]
+table {%
+1 62.2727272727273
+};
+\addlegendentry{NL-shape}
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+2 73.7307527556845
+2 85.6978186728869
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+1.875 73.7307527556845
+2.125 73.7307527556845
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+1.875 85.6978186728869
+2.125 85.6978186728869
+};
+\addplot [semithick, orange, mark=*, mark size=3, mark options={solid}, only marks, forget plot]
+table {%
+2 79.7142857142857
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+2 46.2489017112976
+2 61.4653840029882
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+1.875 46.2489017112976
+2.125 46.2489017112976
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+1.875 61.4653840029882
+2.125 61.4653840029882
+};
+\addplot [semithick, gray, mark=*, mark size=3, mark options={solid}, only marks, forget plot]
+table {%
+2 53.8571428571429
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+3 82.4204978614325
+3 86.4128354719008
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+2.875 82.4204978614325
+3.125 82.4204978614325
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+2.875 86.4128354719008
+3.125 86.4128354719008
+};
+\addplot [semithick, orange, mark=*, mark size=3, mark options={solid}, only marks, forget plot]
+table {%
+3 84.4166666666667
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+3 9.5776304426262
+3 18.2557028907071
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+2.875 9.5776304426262
+3.125 9.5776304426262
+};
+\addplot [semithick, steelblue33135187, forget plot]
+table {%
+2.875 18.2557028907071
+3.125 18.2557028907071
+};
+\addplot [semithick, gray, mark=*, mark size=3, mark options={solid}, only marks, forget plot]
+table {%
+3 13.9166666666667
+};
+\end{axis}
+
+\end{tikzpicture}
