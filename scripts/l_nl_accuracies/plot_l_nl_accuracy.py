@@ -47,7 +47,7 @@ def plot_confidence_interval(
 
 
 def final(filename, dataset="vanilla"):
-    filepath = f"../../data/accuracies/l_nl_{dataset}_" + filename + ".csv"
+    filepath = f"../../data/analysis/accuracies/l_nl_{dataset}_" + filename + ".csv"
     if not os.path.exists(filepath):
         return None
     data = pd.read_csv(filepath)
@@ -139,9 +139,9 @@ def create_combined_l_nl_plot():
     plt.tight_layout()
 
     # Save combined plots
-    plt.savefig("../../data/accuracies/plots/l_vs_nl_accuracy_combined.png", dpi=300, bbox_inches='tight')
-    plt.savefig("../../data/accuracies/plots/l_vs_nl_accuracy_combined.pdf", bbox_inches='tight')
-    tikzplotlib.save("../../data/accuracies/plots/l_vs_nl_accuracy_combined.tex")
+    plt.savefig("../../data/analysis/accuracies/plots/l_vs_nl_accuracy_combined.png", dpi=300, bbox_inches='tight')
+    plt.savefig("../../data/analysis/accuracies/plots/l_vs_nl_accuracy_combined.pdf", bbox_inches='tight')
+    tikzplotlib.save("../../data/analysis/accuracies/plots/l_vs_nl_accuracy_combined.tex")
 
     print("Combined L/NL accuracy plot saved")
     plt.close()

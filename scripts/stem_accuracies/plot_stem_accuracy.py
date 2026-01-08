@@ -35,9 +35,9 @@ def plot_single_point_with_ci(x, values, point_color, marker, markersize, z=1.96
 def final(filename, dataset="vanilla"):
     """Read stem accuracy data for a given model and dataset type"""
     if dataset == "vanilla":
-        filepath = f"../../data/accuracies/stem_accuracies/stem_acc_{filename}.csv"
+        filepath = f"../../data/analysis/stem_accuracies/stem_acc_{filename}.csv"
     else:
-        filepath = f"../../data/accuracies/stem_accuracies/{dataset}/stem_acc_{filename}.csv"
+        filepath = f"../../data/analysis/stem_accuracies/{dataset}/stem_acc_{filename}.csv"
     
     if not os.path.exists(filepath):
         return None
@@ -127,10 +127,10 @@ def create_combined_stem_plot():
     plt.tight_layout()
 
     # Save combined plots
-    os.makedirs("../../data/accuracies/plots", exist_ok=True)
-    plt.savefig("../../data/accuracies/plots/stem_accuracies_combined.png", dpi=300, bbox_inches='tight')
-    plt.savefig("../../data/accuracies/plots/stem_accuracies_combined.pdf", bbox_inches='tight')
-    # tikzplotlib.save("../../data/accuracies/plots/stem_accuracies_combined.tex")  # Commented out due to matplotlib compatibility issues
+    os.makedirs("../../data/analysis/plots", exist_ok=True)
+    plt.savefig("../../data/analysis/plots/stem_accuracies_combined.png", dpi=300, bbox_inches='tight')
+    plt.savefig("../../data/analysis/plots/stem_accuracies_combined.pdf", bbox_inches='tight')
+    # tikzplotlib.save("../../data/analysis/plots/stem_accuracies_combined.tex")  # Commented out due to matplotlib compatibility issues
 
     print("Combined stem accuracy plot saved")
     plt.close()

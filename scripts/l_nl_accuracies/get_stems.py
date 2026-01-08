@@ -44,7 +44,7 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
 
-        with open("../../../predictions_vanilla/" + model + ".txt") as f:
+        with open("../../data/predictions/predictions_vanilla/" + model + ".txt") as f:
             preds = f.readlines()
             preds = [
                 item.split(",")[1].strip().replace(" ", "").replace("ˈ", "")
@@ -64,7 +64,7 @@ if __name__ == "__main__":
                 item.strip().replace(" ", "").replace("ˈ", "") for item in test_data
             ]
 
-        with open("../../data/shape_info/" + model) as f:
+        with open("../shape_info/" + model) as f:
             shapes = f.readlines()
             shapes = [item.strip() for item in shapes]
 

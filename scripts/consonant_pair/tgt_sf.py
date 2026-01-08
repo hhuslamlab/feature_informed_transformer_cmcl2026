@@ -38,7 +38,7 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
         with open(
-            "../../data/fixed_run/"
+            "../../data/"
             + condition
             + "/"
             + split
@@ -71,6 +71,6 @@ if __name__ == "__main__":
         df["tgt_sf"] = tgt_sf
 
         df.to_csv(
-            "../../data/fixed_run/analysis/tgt_sf/" + split + "/" + model + ".csv",
+            "../../data/analysis/tgt_sf/" + split + "/" + model + ".csv",
             index=False,
         )

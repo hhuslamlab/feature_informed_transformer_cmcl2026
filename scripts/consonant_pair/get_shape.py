@@ -8,7 +8,7 @@ from config import all_models
 
 
 def get_lshaped_forms() -> List[str]:
-    with open("../data/ipa_clean_lshaped_dict.json") as f:
+    with open("../../data/nevins_data/ipa_clean_lshaped_dict.json") as f:
         lshaped_dict = json.load(f)
 
     forms = [
@@ -31,7 +31,7 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
         with open(
-            "../data/fixed_run/"
+            "../../data/"
             + condition
             + "/test/run"
             + run
@@ -41,6 +41,6 @@ if __name__ == "__main__":
         ) as f:
             test_data = f.readlines()
             test_data = [item.strip().replace(" ", "") for item in test_data]
-        with open("../data/fixed_run/analysis/shape_info/" + model, "w+") as f:
+        with open("../../data/analysis/shape_info/" + model, "w+") as f:
             for item in test_data:
                 f.write(get_shape(item, lshaped_forms) + "\n")

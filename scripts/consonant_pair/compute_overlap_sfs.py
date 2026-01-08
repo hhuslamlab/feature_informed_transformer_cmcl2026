@@ -9,13 +9,13 @@ from config import all_models
 if __name__ == "__main__":
     for model in all_models:
         print(model)
-        train_df = pd.read_csv("../data/fixed_run/analysis/sfs/train/" + model + ".csv")
+        train_df = pd.read_csv("../../data/analysis/sfs/train/" + model + ".csv")
         train_src1 = train_df["src1_sf"].to_list()
         train_src2 = train_df["src2_sf"].to_list()
         train_tgt = train_df["tgt_sf"].to_list()
 
         pred_df = pd.read_csv(
-            "../data/fixed_run/analysis/sfs/l_shape/pred/" + model + ".csv"
+            "../../data/analysis/sfs/l_shape/pred/" + model + ".csv"
         )
         pred_src1 = pred_df["src1_sf"].to_list()
         pred_src2 = pred_df["src2_sf"].to_list()

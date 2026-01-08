@@ -33,7 +33,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         data = pd.read_csv(
-            "../../data/fixed_run/analysis/lemmas_sf/"
+            "../../data/analysis/lemmas_sf/"
             + split
             + "/run"
             + run
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         lemmas = data["lemma"].tolist()
 
         with open(
-            "../../data/fixed_run/"
+            "../../data/"
             + condition
             + "/"
             + split
@@ -108,7 +108,7 @@ if __name__ == "__main__":
         lemma_l_shaped_sf_df["tgt_sf"] = set_l_shaped_tgt_sf
 
         lemma_sf_df.to_csv(
-            "../../data/fixed_run/analysis/lemma_train_test_sf/all/"
+            "../../data/analysis/lemma_train_test_sf/all/"
             + split
             + "/run"
             + run
@@ -119,7 +119,7 @@ if __name__ == "__main__":
         )
 
         lemma_l_shaped_sf_df.to_csv(
-            "../../data/fixed_run/analysis/lemma_train_test_sf/l_shaped/"
+            "../../data/analysis/lemma_train_test_sf/l_shaped/"
             + split
             + "/run"
             + run

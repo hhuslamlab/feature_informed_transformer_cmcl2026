@@ -26,7 +26,7 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
         df = pd.read_csv(
-            "../../data/fixed_run/analysis/stems/" + model + ".csv"
+            "../../data/analysis/stems/" + model + ".csv"
         ).fillna("")
         preds = df["preds_stems"].tolist()
         test_forms = df["test_form"].tolist()
@@ -45,5 +45,5 @@ if __name__ == "__main__":
         df["pred_sf"] = pred_sf
 
         df.to_csv(
-            "../../data/fixed_run/analysis/pred_sf/" + model + ".csv", index=False
+            "../../data/analysis/pred_sf/" + model + ".csv", index=False
         )

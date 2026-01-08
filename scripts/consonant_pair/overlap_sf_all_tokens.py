@@ -25,14 +25,14 @@ if __name__ == "__main__":
 
         ## we will be getting src1_sf and src2_sf from here:
         src_sf_df = pd.read_csv(
-            "../data/fixed_run/analysis/src_sf/" + split + "/" + model + ".csv"
+            "../../data/analysis/src_sf/" + split + "/" + model + ".csv"
         )
         src1_sfs = src_sf_df["src1_sf"].tolist()
         src2_sfs = src_sf_df["src2_sf"].tolist()
 
         ## we will be getting tgt_sf from here:
 
-        tgt_sf_df = pd.read_csv("../data/fixed_run/analysis/pred_sf/" + model + ".csv")
+        tgt_sf_df = pd.read_csv("../../data/analysis/pred_sf/" + model + ".csv")
 
         tgt_sfs = tgt_sf_df["pred_sf"].tolist()
 
@@ -42,5 +42,5 @@ if __name__ == "__main__":
         )
 
         df.to_csv(
-            "../data/fixed_run/analysis/sfs/pred/" + "/" + model + ".csv", index=False
+            "../../data/analysis/sfs/pred/" + "/" + model + ".csv", index=False
         )

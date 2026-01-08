@@ -11,7 +11,7 @@ def consolidate_l_nl_accuracies(dataset_name):
     print(f"Consolidating L/NL accuracies for {dataset_name}...")
 
     # Find all L/NL accuracy files for this dataset
-    pattern = f"../../data/accuracies/l_nl_{dataset_name}_*.csv"
+    pattern = f"../../data/analysis/accuracies/l_nl_{dataset_name}_*.csv"
     files = glob.glob(pattern)
 
     if not files:
@@ -46,7 +46,7 @@ def consolidate_l_nl_accuracies(dataset_name):
         df_consolidated = df_consolidated.sort_values('filename')
 
         # Save consolidated file
-        output_file = f"../../data/accuracies/l_nl_accuracies_{dataset_name}.csv"
+        output_file = f"../../data/analysis/accuracies/l_nl_accuracies_{dataset_name}.csv"
         df_consolidated.to_csv(output_file, index=False)
 
         print(f"Consolidated {len(consolidated_data)} models into {output_file}")

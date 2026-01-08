@@ -44,7 +44,7 @@ def build_form_to_lemma_map(lemma_dict):
 
 
 def analyze_single_model(model, pred_type="vanilla", pred_dir_name="predictions_vanilla", 
-                         lemma_dict_path="../../../ipa_clean_lshaped_dict.json"):
+                         lemma_dict_path="../../data/nevins_data/ipa_clean_lshaped_dict.json"):
     """Analyze stem accuracy by lemma for a single model"""
     print(f"\nAnalyzing {model} ({pred_type}) - Grouped by Lemma...")
     print("="*60)
@@ -75,7 +75,7 @@ def analyze_single_model(model, pred_type="vanilla", pred_dir_name="predictions_
 
     # Read predictions
     if pred_type == "vanilla" or pred_type == "character_separated":
-        pred_file = f"../../../{pred_dir_name}/{model}.txt"
+        pred_file = f"../../data/predictions/{pred_dir_name}/{model}.txt"
         try:
             pred_data = []
             with open(pred_file, 'r') as f:
@@ -97,10 +97,10 @@ def analyze_single_model(model, pred_type="vanilla", pred_dir_name="predictions_
             print(f"Error reading {pred_file}: {e}")
             return
     else:
-        pred_dir = f"../../../{pred_dir_name}/"
+        pred_dir = f"../../data/predictions/{pred_dir_name}/"
         matching_files = [f for f in os.listdir(pred_dir) if f.startswith(model) and f.endswith('.tsv')]
         if matching_files:
-            pred_file = f"../../../{pred_dir_name}/{matching_files[0]}"
+            pred_file = f"../../data/predictions/{pred_dir_name}/{matching_files[0]}"
         else:
             print(f"No prediction file found for {model} in {pred_dir_name}")
             return
@@ -113,7 +113,7 @@ def analyze_single_model(model, pred_type="vanilla", pred_dir_name="predictions_
             return
 
     # Read test data
-    test_dir = f"../../../analysis/{condition}/test/run{run}/"
+    test_dir = f"../../data/{condition}/test/run{run}/"
     test_file = f"test.{model}.tgt"
     try:
         with open(test_dir + test_file) as f:

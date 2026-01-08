@@ -15,17 +15,17 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         train_srcs_df = pd.read_csv(
-            "../data/fixed_run/analysis/lemma_sf/train/" + model + ".csv"
+            "../../data/analysis/lemma_sf/train/" + model + ".csv"
         )
         tgt_srcs_df = pd.read_csv(
-            "../data/fixed_run/analysis/tgt_sf/test/" + model + ".csv"
+            "../../data/analysis/tgt_sf/test/" + model + ".csv"
         )
 
         test_srcs_df = pd.read_csv(
-            "../data/fixed_run/analysis/src_sf/test/" + model + ".csv"
+            "../../data/analysis/src_sf/test/" + model + ".csv"
         )
         test_tgt_df = pd.read_csv(
-            "../data/fixed_run/analysis/tgt_sf/test/" + model + ".csv"
+            "../../data/analysis/tgt_sf/test/" + model + ".csv"
         )
 
         idx_train_src = train_srcs_df["idx"].tolist()

@@ -40,7 +40,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         with open(
-            "../../data/fixed_run/"
+            "../../data/"
             + condition
             + "/"
             + split
@@ -59,7 +59,7 @@ if __name__ == "__main__":
                     lemma_form_new[form] = k
 
         with open(
-            "../../data/fixed_run/"
+            "../../data/"
             + condition
             + "/"
             + split
@@ -111,7 +111,7 @@ if __name__ == "__main__":
         df["lemma_sf"] = lemmas_test_sf
         df["tgt_sf"] = tgt_sf
         df.to_csv(
-            "../../data/fixed_run/analysis/lemmas_sf/"
+            "../../data/analysis/lemmas_sf/"
             + split
             + "/run"
             + run

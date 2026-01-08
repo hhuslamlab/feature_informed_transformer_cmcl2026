@@ -45,7 +45,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         l_shaped_test = pd.read_csv(
-            "../../data/fixed_run/analysis/lemma_train_test_sf/l_shaped/test"
+            "../../data/analysis/lemma_train_test_sf/l_shaped/test"
             + "/run"
             + run
             + "/"
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         )
 
         l_shaped_train = pd.read_csv(
-            "../../data/fixed_run/analysis/lemma_train_test_sf/l_shaped/train"
+            "../../data/analysis/lemma_train_test_sf/l_shaped/train"
             + "/run"
             + run
             + "/"

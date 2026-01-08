@@ -14,7 +14,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         with open(
-            "../../data/fixed_run/"
+            "../../data/"
             + condition
             + "/test/run"
             + run
@@ -26,14 +26,14 @@ if __name__ == "__main__":
             ]
 
         lemma_df = pd.read_csv(
-            "../../data/fixed_run/analysis/lemmas_sf/test/run"
+            "../../data/analysis/lemmas_sf/test/run"
             + run
             + "/"
             + model
             + ".csv"
         )
 
-        pred_df = pd.read_csv("../../data/fixed_run/analysis/pred_sf/" + model + ".csv")
+        pred_df = pd.read_csv("../../data/analysis/pred_sf/" + model + ".csv")
         # loop through the lemma_df and check if lemma is in lshaped_lemmas. If it is, append the lemma_sf and tgt_sf to a list. Do the same for the predictions.
         lemma_sf = []
         tgt_sf = []
@@ -66,7 +66,7 @@ if __name__ == "__main__":
         for k, v in confusion_matrix_new.items():
             confusion_matrix_new[k] = v.replace("nan", "")
         with open(
-            "../../data/fixed_run/analysis/lemma_test_pred_sf/" + model + ".json", "w"
+            "../../data/analysis/lemma_test_pred_sf/" + model + ".json", "w"
         ) as f:
             json.dump(confusion_matrix_new, f, indent=4)
 
@@ -82,7 +82,7 @@ if __name__ == "__main__":
             confusion_matrix_filtered_new[str(k)] = str(v)
 
         with open(
-            "../../data/fixed_run/analysis/lemma_test_pred_sf/"
+            "../../data/analysis/lemma_test_pred_sf/"
             + model
             + "_filtered.json",
             "w",

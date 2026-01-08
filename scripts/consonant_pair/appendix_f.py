@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
     suffixes = sorted(list(set(suffixes)), key=len, reverse=True)
 
-    with open("../data/ipa_clean_lshaped_dict.json") as f:
+    with open("../../data/nevins_data/ipa_clean_lshaped_dict.json") as f:
         lshaped_dict = json.load(f)
 
     for model in all_models:
@@ -29,7 +29,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         df = pd.read_csv(
-            "../data/fixed_run/analysis/l_shaped/lemma_sf/pred/"
+            "../../data/analysis/l_shaped/lemma_sf/pred/"
             + condition
             + "/run"
             + run
@@ -61,7 +61,7 @@ if __name__ == "__main__":
         pd.DataFrame(
             Counter(sfs_).most_common(), columns=["consonant_pairs", "count"]
         ).to_csv(
-            "../data/fixed_run/analysis/l_shaped/lemma_sf/pred/"
+            "../../data/analysis/l_shaped/lemma_sf/pred/"
             + condition
             + "/figure_3/run"
             + run

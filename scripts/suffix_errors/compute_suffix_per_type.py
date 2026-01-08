@@ -18,21 +18,21 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         ar_df = pd.read_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/"
             + suffixes[1]
             + "_suffixes/combine.csv"
         )
         er_df = pd.read_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/"
             + suffixes[0]
             + "_suffixes/combine.csv"
         )
         ir_df = pd.read_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/"
             + suffixes[2]
@@ -49,7 +49,7 @@ if __name__ == "__main__":
             avg_ar_accuracy_present_in_verb_class
         ]
         avg_ar.to_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/"
             + suffixes[1]
@@ -67,7 +67,7 @@ if __name__ == "__main__":
             avg_er_accuracy_present_in_verb_class
         ]
         avg_er.to_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/"
             + suffixes[0]
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             avg_ir_accuracy_present_in_verb_class
         ]
         avg_ir.to_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/"
             + suffixes[2]

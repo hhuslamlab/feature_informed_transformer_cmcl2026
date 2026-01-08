@@ -2,7 +2,7 @@ import pandas as pd
 import statistics
 
 if __name__ == "__main__":
-    df = pd.read_csv("../../data/fixed_run/analysis/stem_accuracies/combine.csv")
+    df = pd.read_csv("../../data/analysis/stem_accuracies/combine.csv")
 
     models = df["filename"].tolist()
     l_accs = df["l_acc"].tolist()
@@ -52,7 +52,7 @@ if __name__ == "__main__":
     df["nl_90L_10NL"] = [nl_mean_90L]
 
     df.to_csv(
-        "../../data/fixed_run/analysis/stem_accuracies/mean_accuracies.csv", index=False
+        "../../data/analysis/stem_accuracies/mean_accuracies.csv", index=False
     )
     print(f"l mean 10L: {l_mean_10L}")
     print(f"l mean 50L: {l_mean_50L}")

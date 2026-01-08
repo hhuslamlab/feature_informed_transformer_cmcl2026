@@ -53,7 +53,7 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
         with open(
-            "../../data/fixed_run/"
+            "../../data/"
             + condition
             + "/"
             + split
@@ -97,6 +97,6 @@ if __name__ == "__main__":
         df["src2_sf"] = src2_sf
 
         df.to_csv(
-            "../../data/fixed_run/analysis/src_sf/" + split + "/" + model + ".csv",
+            "../../data/analysis/src_sf/" + split + "/" + model + ".csv",
             index=False,
         )

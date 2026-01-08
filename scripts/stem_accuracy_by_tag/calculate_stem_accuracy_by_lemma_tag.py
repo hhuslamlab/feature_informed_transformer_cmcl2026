@@ -81,7 +81,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
 
         try:
             if pred_type in ("vanilla", "character_separated"):
-                pred_file = f"../../../{pred_dir_name}/{model}.txt"
+                pred_file = f"../../data/predictions/{pred_dir_name}/{model}.txt"
                 pred_data = []
                 with open(pred_file, "r") as f:
                     for idx, line in enumerate(f):
@@ -94,7 +94,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
                 pred_data.sort(key=lambda x: x[0])
                 preds = [pred for _, pred in pred_data]
             else:
-                pred_dir = f"../../../{pred_dir_name}/"
+                pred_dir = f"../../data/predictions/{pred_dir_name}/"
                 matching = [f for f in os.listdir(pred_dir) if f.startswith(model) and f.endswith(".tsv")]
                 if not matching:
                     print(f"    No prediction file found for {model} in {pred_dir_name}")
@@ -107,7 +107,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
             continue
 
         # Read targets
-        test_dir = f"../../../analysis/{condition}/test/run{run}/"
+        test_dir = f"../../data/{condition}/test/run{run}/"
         test_file = f"test.{model}.tgt"
         try:
             with open(os.path.join(test_dir, test_file), "r") as f:
@@ -173,7 +173,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
                 }
             )
 
-        output_dir = f"../../data/accuracies/stem_accuracy_by_lemma_tag/{pred_type}/"
+        output_dir = f"../../data/analysis/stem_accuracy_by_lemma_tag/{pred_type}/"
         os.makedirs(output_dir, exist_ok=True)
         pd.DataFrame(model_rows).sort_values(["lemma", "target_tag"]).to_csv(
             os.path.join(output_dir, f"stem_acc_by_lemma_tag_{model}.csv"), index=False
@@ -188,7 +188,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
 
     if all_results:
         combined_df = pd.DataFrame(all_results).sort_values(["condition", "run", "lemma", "target_tag"])
-        output_dir = f"../../data/accuracies/stem_accuracy_by_lemma_tag/{pred_type}/"
+        output_dir = f"../../data/analysis/stem_accuracy_by_lemma_tag/{pred_type}/"
         os.makedirs(output_dir, exist_ok=True)
         combined_df.to_csv(os.path.join(output_dir, "stem_acc_by_lemma_tag_all_models.csv"), index=False)
         print(f"\n  Saved combined results to {output_dir}stem_acc_by_lemma_tag_all_models.csv")
@@ -205,7 +205,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
 
 
 if __name__ == "__main__":
-    lemma_dict_path = "../../../ipa_clean_lshaped_dict.json"
+    lemma_dict_path = "../../data/nevins_data/ipa_clean_lshaped_dict.json"
     prediction_types = [
         ("vanilla", "predictions_vanilla"),
         ("character_separated", "processed_predictions_sep_char"),

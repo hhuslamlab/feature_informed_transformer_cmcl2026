@@ -13,24 +13,24 @@ if __name__ == "__main__":
     for model in all_models:
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         train_df = pd.read_csv(
-            "../../data/fixed_run/analysis/src_sf/train/" + model + ".csv"
+            "../../data/analysis/src_sf/train/" + model + ".csv"
         )
         train_src1 = train_df["src1_sf"].to_list()
         train_src2 = train_df["src2_sf"].to_list()
         train_tgt_df = pd.read_csv(
-            "../../data/fixed_run/analysis/tgt_sf/train/" + model + ".csv"
+            "../../data/analysis/tgt_sf/train/" + model + ".csv"
         )
 
         train_tgt = train_tgt_df["tgt_sf"].to_list()
 
         test_df = pd.read_csv(
-            "../../data/fixed_run/analysis/src_sf/test/" + model + ".csv"
+            "../../data/analysis/src_sf/test/" + model + ".csv"
         )
         test_src1 = test_df["src1_sf"].to_list()
         test_src2 = test_df["src2_sf"].to_list()
 
         test_tgt_df = pd.read_csv(
-            "../../data/fixed_run/analysis/tgt_sf/test/" + model + ".csv"
+            "../../data/analysis/tgt_sf/test/" + model + ".csv"
         )
         test_tgt = test_tgt_df["tgt_sf"].to_list()
 
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         df["per_seen_triples"] = [per_seen]
         df["per_unseen_triples"] = [per_unseen]
         df.to_csv(
-            "../../data/fixed_run/analysis/compute_overlap_train_test_sf/all/"
+            "../../data/analysis/compute_overlap_train_test_sf/all/"
             + condition
             + "/"
             + model

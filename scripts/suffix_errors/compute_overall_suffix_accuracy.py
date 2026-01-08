@@ -17,7 +17,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         overall_suffix_accuracy = pd.read_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/overall_accuracies/"
             + "combine.csv"
@@ -46,7 +46,7 @@ if __name__ == "__main__":
             avg_accuracy_when_stems_are_incorrect
         ]
         overall_df.to_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/overall_accuracies/"
             + "avg_accuracy.csv",
@@ -54,7 +54,7 @@ if __name__ == "__main__":
         )
 
         lshaped_suffix_accuracy = pd.read_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/lshaped/overall_accuracies/combine.csv"
         )
@@ -63,7 +63,7 @@ if __name__ == "__main__":
         lshape_overall_df = pd.DataFrame()
         lshape_overall_df["accuracy"] = [lshape_avg_accuracy]
         lshape_overall_df.to_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/lshaped/overall_accuracies/"
             + "avg_accuracy.csv",
@@ -71,7 +71,7 @@ if __name__ == "__main__":
         )
 
         nlshape_suffix_accuracy = pd.read_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/nlshaped/overall_accuracies/combine.csv"
         )
@@ -80,7 +80,7 @@ if __name__ == "__main__":
         nlshape_overall_df = pd.DataFrame()
         nlshape_overall_df["accuracy"] = [nlshape_avg_accuracy]
         nlshape_overall_df.to_csv(
-            "../../data/fixed_run/analysis/suffix_accuracies/"
+            "../../data/analysis/suffix_accuracies/"
             + condition
             + "/nlshaped/overall_accuracies/"
             + "avg_accuracy.csv",

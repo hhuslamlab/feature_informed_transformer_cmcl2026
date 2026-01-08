@@ -14,7 +14,7 @@ warnings.filterwarnings('ignore')
 
 def load_data(dataset="vanilla"):
     """Load the lemma-tag accuracy data."""
-    data_path = f"../../data/accuracies/stem_accuracy_by_lemma_tag/{dataset}/stem_acc_by_lemma_tag_all_models.csv"
+    data_path = f"../../data/analysis/stem_accuracy_by_lemma_tag/{dataset}/stem_acc_by_lemma_tag_all_models.csv"
 
     if not os.path.exists(data_path):
         print(f"File not found: {data_path}")
@@ -116,7 +116,7 @@ def analyze_condition_specific_l_shape(df):
     plt.ylabel('Pearson Correlation (Lemma-Specific)')
     plt.xlabel('Data Condition')
     plt.tight_layout()
-    plt.savefig('../../data/accuracies/plots/comprehensive_analysis/l_shape_by_condition_boxplot.png', dpi=300)
+    plt.savefig('../../data/analysis/plots/comprehensive_analysis/l_shape_by_condition_boxplot.png', dpi=300)
     plt.close()
     
     # Visualization: Distribution comparison (KDE)
@@ -129,7 +129,7 @@ def analyze_condition_specific_l_shape(df):
     plt.xlabel('Correlation Coefficient')
     plt.legend()
     plt.tight_layout()
-    plt.savefig('../../data/accuracies/plots/comprehensive_analysis/l_shape_by_condition_dist.png', dpi=300)
+    plt.savefig('../../data/analysis/plots/comprehensive_analysis/l_shape_by_condition_dist.png', dpi=300)
     plt.close()
 
     return combined_results
@@ -138,7 +138,7 @@ def main():
     dataset = "vanilla"
     print(f"Running Condition-Specific L-Shape analysis for {dataset} dataset...")
     
-    os.makedirs('../../data/accuracies/plots/comprehensive_analysis', exist_ok=True)
+    os.makedirs('../../data/analysis/plots/comprehensive_analysis', exist_ok=True)
     
     df = load_data(dataset)
     if df is None:
@@ -146,7 +146,7 @@ def main():
 
     analyze_condition_specific_l_shape(df)
 
-    print("\nAnalysis complete! Results saved to ../../data/accuracies/plots/comprehensive_analysis/")
+    print("\nAnalysis complete! Results saved to ../../data/analysis/plots/comprehensive_analysis/")
 
 if __name__ == "__main__":
     main()

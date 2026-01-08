@@ -10,10 +10,10 @@ def create_accuracy_boxplot():
     """Create boxplot comparing accuracies between vanilla, dual source, feature invariant, and character separated transformers"""
 
     # Paths to accuracy files
-    vanilla_file = Path("../../../analysis/data/accuracies/overall_accuracies.csv")
-    independent_feature_file = Path("../../../analysis/data/accuracies/overall_accuracies_independent_feature.csv")
-    feature_invariant_file = Path("../../../analysis/data/accuracies/overall_accuracies_feature_invariant.csv")
-    sep_char_file = Path("../../../analysis/data/accuracies/overall_accuracies_sep_char.csv")
+    vanilla_file = Path("../../data/analysis/accuracies/overall_accuracies.csv")
+    independent_feature_file = Path("../../data/analysis/accuracies/overall_accuracies_independent_feature.csv")
+    feature_invariant_file = Path("../../data/analysis/accuracies/overall_accuracies_feature_invariant.csv")
+    sep_char_file = Path("../../data/analysis/accuracies/overall_accuracies_sep_char.csv")
 
     if not vanilla_file.exists() or not independent_feature_file.exists() or not feature_invariant_file.exists() or not sep_char_file.exists():
         print(f"Error: Accuracy files not found")
@@ -57,7 +57,7 @@ def create_accuracy_boxplot():
         return
 
     # Create the plots directory if it doesn't exist
-    plots_dir = Path("../../../analysis/data/accuracies/plots")
+    plots_dir = Path("../../data/analysis/accuracies/plots")
     plots_dir.mkdir(parents=True, exist_ok=True)
 
     # Set up the plot style

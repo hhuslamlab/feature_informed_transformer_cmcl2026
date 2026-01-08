@@ -42,7 +42,7 @@ def process_predictions(pred_type, pred_dir_name):
 
         # Read predictions
         if pred_type == "vanilla" or pred_type == "character_separated":
-            pred_file = f"../../../{pred_dir_name}/{model}.txt"
+            pred_file = f"../../data/predictions/{pred_dir_name}/{model}.txt"
             try:
                 # TXT format - may have index,prediction format
                 pred_data = []
@@ -71,10 +71,10 @@ def process_predictions(pred_type, pred_dir_name):
                 continue
         else:
             # TSV format for dual_source and feature_invariant
-            pred_dir = f"../../../{pred_dir_name}/"
+            pred_dir = f"../../data/predictions/{pred_dir_name}/"
             matching_files = [f for f in os.listdir(pred_dir) if f.startswith(model) and f.endswith('.tsv')]
             if matching_files:
-                pred_file = f"../../../{pred_dir_name}/{matching_files[0]}"
+                pred_file = f"../../data/predictions/{pred_dir_name}/{matching_files[0]}"
             else:
                 print(f"    No prediction file found for {model} in {pred_dir_name}")
                 continue
@@ -88,7 +88,7 @@ def process_predictions(pred_type, pred_dir_name):
                 continue
 
         # Read test data
-        test_dir = f"../../../analysis/{condition}/test/run{run}/"
+        test_dir = f"../../data/{condition}/test/run{run}/"
         test_file = f"test.{model}.tgt"
         try:
             with open(test_dir + test_file) as f:
@@ -134,9 +134,9 @@ def process_predictions(pred_type, pred_dir_name):
         
         # For vanilla, save in existing location for backward compatibility
         if pred_type == "vanilla":
-            stems_df.to_csv(f"../../data/accuracies/stems/stems_{model}.csv", index=False)
+            stems_df.to_csv(f"../../data/analysis/stems/stems_{model}.csv", index=False)
         else:
-            stems_dir = f"../../data/accuracies/stems/{pred_type}/"
+            stems_dir = f"../../data/analysis/stems/{pred_type}/"
             os.makedirs(stems_dir, exist_ok=True)
             stems_df.to_csv(f"{stems_dir}stems_{model}.csv", index=False)
 
@@ -164,9 +164,9 @@ def process_predictions(pred_type, pred_dir_name):
 
         # For vanilla, save in existing location for backward compatibility
         if pred_type == "vanilla":
-            acc_df.to_csv(f"../../data/accuracies/stem_accuracies/stem_acc_{model}.csv", index=False)
+            acc_df.to_csv(f"../../data/analysis/stem_accuracies/stem_acc_{model}.csv", index=False)
         else:
-            acc_dir = f"../../data/accuracies/stem_accuracies/{pred_type}/"
+            acc_dir = f"../../data/analysis/stem_accuracies/{pred_type}/"
             os.makedirs(acc_dir, exist_ok=True)
             acc_df.to_csv(f"{acc_dir}stem_acc_{model}.csv", index=False)
 

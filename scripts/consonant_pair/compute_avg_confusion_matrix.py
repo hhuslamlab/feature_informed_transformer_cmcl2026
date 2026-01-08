@@ -36,7 +36,7 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
         with open(
-            "../../data/fixed_run/analysis/lemma_test_pred_sf/" + model + ".json"
+            "../../data/analysis/lemma_test_pred_sf/" + model + ".json"
         ) as f:
             cm = json.load(f)
         cm = {eval(k): eval(v) for k, v in cm.items()}
@@ -57,7 +57,7 @@ if __name__ == "__main__":
         confusion_matrix_new[str(k)] = str(v)
 
     with open(
-        "../../data/fixed_run/analysis/lemma_test_pred_sf/"
+        "../../data/analysis/lemma_test_pred_sf/"
         + input_condition
         + "/avg/confusion_matrix.json",
         "w",
@@ -84,7 +84,7 @@ if __name__ == "__main__":
         confusion_matrix_filtered_new[str(k)] = str(v)
 
     with open(
-        "../../data/fixed_run/analysis/lemma_test_pred_sf/"
+        "../../data/analysis/lemma_test_pred_sf/"
         + input_condition
         + "/avg/confusion_matrix_filtered.json",
         "w",

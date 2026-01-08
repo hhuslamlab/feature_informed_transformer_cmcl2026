@@ -10,14 +10,14 @@ if __name__ == "__main__":
     for model in all_models:
         print(model)
         ## get predictions from the predictions sf
-        preds_df = pd.read_csv("../data/fixed_run/analysis/pred_sf/" + model + ".csv")
+        preds_df = pd.read_csv("../../data/analysis/pred_sf/" + model + ".csv")
 
         ## get shape information from stems/ dir.
-        shapes_df = pd.read_csv("../data/fixed_run/analysis/stems/" + model + ".csv")
+        shapes_df = pd.read_csv("../../data/analysis/stems/" + model + ".csv")
 
         ## get srcs from the src_sf of the test set
         srcs_df = pd.read_csv(
-            "../data/fixed_run/analysis/src_sf/test/" + model + ".csv"
+            "../../data/analysis/src_sf/test/" + model + ".csv"
         )
         ## we are first verifying if the prediction in preds_sfs are same as that in the shapes_df. If its the same, then we get the corresponding the sf from pred_sfs
 
@@ -47,5 +47,5 @@ if __name__ == "__main__":
                 triplets.append((src1, src2, pr_sf))
 
         pd.DataFrame(triplets, columns=["src1_sf", "src2_sf", "tgt_sf"]).to_csv(
-            "../data/fixed_run/analysis/sfs/l_shape/pred/" + model + ".csv", index=False
+            "../../data/analysis/sfs/l_shape/pred/" + model + ".csv", index=False
         )

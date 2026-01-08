@@ -18,8 +18,8 @@ import pandas as pd
 from sklearn.cluster import KMeans
 
 
-DATA_ROOT = "../../data/accuracies/stem_accuracy_by_lemma_tag"
-OUTPUT_ROOT = "../../data/accuracies/plots/lemma_clustering"
+DATA_ROOT = "../../data/analysis/stem_accuracy_by_lemma_tag"
+OUTPUT_ROOT = "../../data/analysis/plots/lemma_clustering"
 
 BASE_TAG = "V;IND;PRS;1;SG"
 SBJV_PREFIX = "V;SBJV"

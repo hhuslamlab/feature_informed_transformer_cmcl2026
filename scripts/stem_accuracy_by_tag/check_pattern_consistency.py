@@ -7,7 +7,7 @@ import os
 from glob import glob
 
 def analyze_all_files():
-    data_dir = "../../data/accuracies/stem_accuracy_by_lemma_tag/vanilla"
+    data_dir = "../../data/analysis/stem_accuracy_by_lemma_tag/vanilla"
     
     # Get all individual model files (exclude summary and all_models)
     files = glob(os.path.join(data_dir, "stem_acc_by_lemma_tag_*.csv"))

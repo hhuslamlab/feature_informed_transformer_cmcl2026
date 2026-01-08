@@ -8,7 +8,7 @@ from get_stems import get_stem
 if __name__ == "__main__":
     suffixes = ["eɾ", "aɾ", "iɾ"]
 
-    with open("../data/ipa_clean_lshaped_dict.json") as f:
+    with open("../../data/nevins_data/ipa_clean_lshaped_dict.json") as f:
         lshaped_dict = json.load(f)
 
     for model in all_models:
@@ -17,7 +17,7 @@ if __name__ == "__main__":
         run = model.split("_")[2]
 
         with open(
-            "../data/fixed_run/"
+            "../../data/"
             + condition
             + "/train/run"
             + run
@@ -35,10 +35,10 @@ if __name__ == "__main__":
                 lemma_form[form] = lemma
         ## combine forms in src and tgt and have a set of forms.
 
-        srcs = pd.read_csv("../data/fixed_run/analysis/src_sf/train/" + model + ".csv")
+        srcs = pd.read_csv("../../data/analysis/src_sf/train/" + model + ".csv")
         src1 = srcs["src1"].tolist()
         src2 = srcs["src2"].tolist()
-        tgts = pd.read_csv("../data/fixed_run/analysis/tgt_sf/train/" + model + ".csv")
+        tgts = pd.read_csv("../../data/analysis/tgt_sf/train/" + model + ".csv")
         tgt = tgts["tgt"].tolist()
 
         unique_forms = list(set(src1) | set(src2) | set(tgt))
@@ -67,7 +67,7 @@ if __name__ == "__main__":
         df["lemma_sf"] = lemmas_sf
 
         df.to_csv(
-            "../data/fixed_run/analysis/l_shaped/lemma_sf/train/all_models/"
+            "../../data/analysis/l_shaped/lemma_sf/train/all_models/"
             + model
             + ".csv",
             index=False,

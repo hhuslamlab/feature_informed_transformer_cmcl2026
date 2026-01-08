@@ -105,7 +105,7 @@ def process_directory(predictions_dir, output_filename):
     df_output = pd.DataFrame(results)
 
     # Ensure output directory exists
-    output_dir = Path("../../data/accuracies")
+    output_dir = Path("../../data/analysis/accuracies")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save to CSV
@@ -145,8 +145,9 @@ def process_directory_sep_char(predictions_dir, output_filename, base_path):
             run = parts[2]  # e.g., 1
             model = short_filename  # e.g., 10L_90NL_1_1
             
-            # Find target file
-            target_file = base_path / "analysis" / condition / "test" / f"run{run}" / f"test.{model}.tgt"
+            # Find target file (targets are in data/{condition}/test/)
+            data_root = Path("../../data")
+            target_file = data_root / condition / "test" / f"run{run}" / f"test.{model}.tgt"
             
             if not target_file.exists():
                 print(f"  Warning: Target file not found: {target_file}")
@@ -170,7 +171,7 @@ def process_directory_sep_char(predictions_dir, output_filename, base_path):
     df_output = pd.DataFrame(results)
 
     # Ensure output directory exists
-    output_dir = Path("../../data/accuracies")
+    output_dir = Path("../../data/analysis/accuracies")
     output_dir.mkdir(parents=True, exist_ok=True)
 
     # Save to CSV
@@ -184,7 +185,7 @@ def process_directory_sep_char(predictions_dir, output_filename, base_path):
 
 def main():
     # Process both directories
-    base_path = Path("../../../")
+    base_path = Path("../../data/predictions")
 
     print("=== Processing Dual Source Predictions ===")
     dual_source_dir = base_path / "predictions_dualsource"

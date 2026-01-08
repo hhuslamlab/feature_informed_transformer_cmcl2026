@@ -16,7 +16,7 @@ from config import condition_10L_90NL, condition_50L_50NL, condition_90L_10NL
 def plot_accuracy_by_tag(dataset="vanilla"):
     """Create plots showing stem accuracy by target tag for a given dataset."""
     
-    data_dir = f"../../data/accuracies/stem_accuracy_by_tag/{dataset}/"
+    data_dir = f"../../data/analysis/stem_accuracy_by_tag/{dataset}/"
     
     if not os.path.exists(data_dir):
         print(f"Data directory not found: {data_dir}")
@@ -31,7 +31,7 @@ def plot_accuracy_by_tag(dataset="vanilla"):
     df = pd.read_csv(combined_file)
     
     # Create output directory for plots
-    plot_dir = f"../../data/accuracies/plots/stem_accuracy_by_tag/{dataset}/"
+    plot_dir = f"../../data/analysis/plots/stem_accuracy_by_tag/{dataset}/"
     os.makedirs(plot_dir, exist_ok=True)
     
     # 1. Plot average accuracy by tag across all models
@@ -166,7 +166,7 @@ def create_comparison_plot():
     all_data = []
     
     for dataset in datasets:
-        data_dir = f"../../data/accuracies/stem_accuracy_by_tag/{dataset}/"
+        data_dir = f"../../data/analysis/stem_accuracy_by_tag/{dataset}/"
         summary_file = f"{data_dir}stem_acc_by_tag_summary.csv"
         
         if os.path.exists(summary_file):
@@ -214,7 +214,7 @@ def create_comparison_plot():
     
     plt.tight_layout()
     
-    plot_dir = "../../data/accuracies/plots/stem_accuracy_by_tag/"
+    plot_dir = "../../data/analysis/plots/stem_accuracy_by_tag/"
     os.makedirs(plot_dir, exist_ok=True)
     
     plt.savefig(f"{plot_dir}stem_accuracy_by_tag_comparison.png", dpi=300, bbox_inches='tight')

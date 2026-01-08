@@ -5,7 +5,7 @@ import pandas as pd
 import os
 
 def report_accuracies():
-    data_path = "../../data/accuracies/stem_accuracy_by_lemma_tag/vanilla/stem_acc_by_lemma_tag_all_models.csv"
+    data_path = "../../data/analysis/stem_accuracy_by_lemma_tag/vanilla/stem_acc_by_lemma_tag_all_models.csv"
     if not os.path.exists(data_path):
         print("Data file not found")
         return

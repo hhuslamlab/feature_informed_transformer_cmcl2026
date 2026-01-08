@@ -22,7 +22,7 @@ def process_predictions(pred_type, pred_dir_name):
         run = model.split("_")[2]
 
         # Find the correct test file path
-        test_dir = f"../../../analysis/{condition}/test/run{run}/"
+        test_dir = f"../../data/{condition}/test/run{run}/"
         test_file = f"test.{model}.tgt"
 
         if not os.path.exists(test_dir + test_file):
@@ -42,13 +42,13 @@ def process_predictions(pred_type, pred_dir_name):
 
         # Find the prediction file (different formats for different model types)
         if pred_type == "vanilla" or pred_type == "character_separated":
-            pred_file = f"../../../{pred_dir_name}/{model}.txt"
+            pred_file = f"../../data/predictions/{pred_dir_name}/{model}.txt"
         else:
             # For dual_source and feature_invariant, look for .tsv files
-            pred_dir = f"../../../{pred_dir_name}/"
+            pred_dir = f"../../data/predictions/{pred_dir_name}/"
             matching_files = [f for f in os.listdir(pred_dir) if f.startswith(model) and f.endswith('.tsv')]
             if matching_files:
-                pred_file = f"../../../{pred_dir_name}/{matching_files[0]}"
+                pred_file = f"../../data/predictions/{pred_dir_name}/{matching_files[0]}"
             else:
                 print(f"No prediction file found for {model} in {pred_dir_name}")
                 continue
@@ -117,7 +117,7 @@ def process_predictions(pred_type, pred_dir_name):
         df["nl_acc"] = [nl_acc]
 
         df.to_csv(
-            f"../../data/accuracies/l_nl_{pred_type.lower().replace(' ', '_')}_{model}.csv",
+            f"../../data/analysis/accuracies/l_nl_{pred_type.lower().replace(' ', '_')}_{model}.csv",
             index=False,
         )
 

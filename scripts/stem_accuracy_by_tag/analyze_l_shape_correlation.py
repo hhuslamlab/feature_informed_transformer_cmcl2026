@@ -11,7 +11,7 @@ from scipy import stats
 
 def analyze_l_shape_correlation(dataset="vanilla"):
     # Load the combined data
-    data_path = f"../../data/accuracies/stem_accuracy_by_lemma_tag/{dataset}/stem_acc_by_lemma_tag_all_models.csv"
+    data_path = f"../../data/analysis/stem_accuracy_by_lemma_tag/{dataset}/stem_acc_by_lemma_tag_all_models.csv"
     
     if not os.path.exists(data_path):
         print(f"File not found: {data_path}")
@@ -71,7 +71,7 @@ def analyze_l_shape_correlation(dataset="vanilla"):
     plt.grid(True, alpha=0.3)
     
     # Save plot
-    output_dir = f"../../data/accuracies/plots/l_shape_analysis/{dataset}/"
+    output_dir = f"../../data/analysis/plots/l_shape_analysis/{dataset}/"
     os.makedirs(output_dir, exist_ok=True)
     plt.savefig(f"{output_dir}ind_vs_sbjv_correlation.png", dpi=300)
     plt.savefig(f"{output_dir}ind_vs_sbjv_correlation.pdf")

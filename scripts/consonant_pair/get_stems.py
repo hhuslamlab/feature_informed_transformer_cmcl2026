@@ -44,14 +44,14 @@ if __name__ == "__main__":
         condition = model.split("_")[0] + "_" + model.split("_")[1]
         run = model.split("_")[2]
 
-        with open("../../../predictions_vanilla/" + model + ".txt") as f:
+        with open("../../data/predictions/predictions_vanilla/" + model + ".txt") as f:
             preds = f.readlines()
             preds = [
                 item.split(",")[1].strip().replace(" ", "").replace("ˈ", "")
                 for item in preds
             ]
         with open(
-            "../../../analysis/"
+            "../../data/"
             + condition
             + "/test/run"
             + run
@@ -90,4 +90,4 @@ if __name__ == "__main__":
         df["test_stems"] = test_stems
         df["shapes"] = shapes_
 
-        df.to_csv("../../data/accuracies/stems/stems_" + model + ".csv", index=False)
+        df.to_csv("../../data/analysis/stems/stems_" + model + ".csv", index=False)

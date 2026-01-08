@@ -8,7 +8,7 @@ from config import all_models
 
 
 if __name__ == "__main__":
-    with open("../data/lshaped_lemmas_exceptions.json") as f:
+    with open("../../data/nevins_data/lshaped_lemmas_exceptions.json") as f:
         lemmas = json.load(f)
 
     for model in all_models:
@@ -19,7 +19,7 @@ if __name__ == "__main__":
         cls = "tgt"
         if cls == "src":
             srcs_df = pd.read_csv(
-                "../data/fixed_run/analysis/src_sf/" + split + "/" + model + ".csv"
+                "../../data/analysis/src_sf/" + split + "/" + model + ".csv"
             )
             srcs1 = srcs_df["src1"].tolist()
             srcs2 = srcs_df["src2"].tolist()
@@ -49,7 +49,7 @@ if __name__ == "__main__":
 
         if cls == "tgt":
             tgt_df = pd.read_csv(
-                "../data/fixed_run/analysis/tgt_sf/" + split + "/" + model + ".csv"
+                "../../data/analysis/tgt_sf/" + split + "/" + model + ".csv"
             )
             tgts = tgt_df["tgt"].tolist()
             exception_forms = []
@@ -70,7 +70,7 @@ if __name__ == "__main__":
             df["per_compute_tgt"] = [per_compute_tgt]
 
             df.to_csv(
-                "../data/fixed_run/analysis/misclassification/"
+                "../../data/analysis/misclassification/"
                 + condition
                 + "/"
                 + cls
