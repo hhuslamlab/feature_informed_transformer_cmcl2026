@@ -1,182 +1,132 @@
-# Morphological Transformer Training on Hugging Face
+# Feature-Informed Morphological Inflection
 
-This repository contains code for training morphological reinflection models using TagTransformer architecture on Hugging Face infrastructure.
+Transformer-based models for Spanish verb morphological inflection with different morphological feature representations. This repository accompanies the LREC 2026 paper.
 
-## 🚀 Quick Start
+## Overview
 
-### Local Training
-```bash
-# Install dependencies
-uv add huggingface_hub transformers datasets wandb
+We investigate how different representations of morphological features affect the performance of sequence-to-sequence models on morphological inflection. The models take a lemma and a set of morphological features as input and produce the inflected form.
 
-# Login to Hugging Face
-uv run huggingface-cli login
+### Model Variants
 
-# Train a model
-uv run python scripts/train_huggingface.py \
-    --model_name "your-username/morphological-transformer" \
-    --train_src "./10L_90NL/train/run1/train.10L_90NL_1_1.src" \
-    --train_tgt "./10L_90NL/train/run1/train.10L_90NL_1_1.tgt" \
-    --dev_src "./10L_90NL/dev/run1/dev.10L_90NL_1_1.src" \
-    --dev_tgt "./10L_90NL/dev/run1/dev.10L_90NL_1_1.tgt" \
-    --wandb_project "morphological-transformer" \
-    --upload_model
-```
+| Architecture | `--arch` flag | Description |
+|---|---|---|
+| Vanilla | `vanilla` | Standard transformer with features as a tag string |
+| Character-separated | `charsep` | Features separated by individual characters |
+| Feature-invariant | `featureinvariant` | Shared feature embedding across all feature types |
+| Independent-feature | `independentfeature` | Separate embedding per feature type |
+| Feature-geometric | `featuregeometric` | Feature geometry-aware encoding |
+| Binary-feature | `binaryfeature` | Binary feature vector representation |
+| Dual-source | `dualsource` | Separate encoder for lemma and features |
 
-### Cloud Training on Hugging Face Spaces
+## Data
 
-1. **Create a new Space**:
-   - Go to [Hugging Face Spaces](https://huggingface.co/spaces)
-   - Create a new Space with "Docker" SDK
-   - Set hardware to "GPU" for faster training
+The data covers Spanish verb inflection with paradigm splits based on L-shaped (L) and non-L-shaped (NL) paradigm structure:
 
-2. **Configure Environment Variables**:
-   ```bash
-   HF_TOKEN=your_huggingface_token
-   MODEL_NAME=your-username/morphological-transformer
-   DATASET_NAME=10L_90NL
-   RUN_NUMBER=1
-   WANDB_PROJECT=morphological-transformer-cloud
-   ```
+- **10L/90NL** &mdash; 10% L-shaped, 90% non-L-shaped training lemmas
+- **50L/50NL** &mdash; 50% L-shaped, 50% non-L-shaped training lemmas
+- **90L/10NL** &mdash; 90% L-shaped, 10% non-L-shaped training lemmas
 
-3. **Upload your data**:
-   - Mount your data directory to `/data`
-   - Ensure data structure matches expected format
+Each condition has 3 independent data splits (runs), each trained with 4 random seeds.
 
-4. **Start training**:
-   - The Space will automatically start training when launched
-   - Monitor progress through logs and Weights & Biases
+Data files use `.src` (source: lemma + features) and `.tgt` (target: inflected form) format, organized under `data/{condition}/`.
 
-## 📁 Project Structure
+## Repository Structure
 
 ```
-feature_invariant_transformer/
+feature_informed/
 ├── scripts/
-│   ├── train_huggingface.py      # Local HF training
-│   ├── hf_cloud_training.py      # Cloud training script
-│   ├── hf_model_config.py        # HF model configuration
-│   ├── train_all_hf.py          # Batch training script
-│   ├── transformer.py            # TagTransformer model
-│   └── morphological_dataset.py  # Dataset handling
-├── requirements_hf.txt           # HF dependencies
-├── Dockerfile                    # Docker configuration
-├── README.md                     # This file
-└── data/                        # Training data
-    ├── 10L_90NL/
-    ├── 50L_50NL/
-    └── 90L_10NL/
+│   ├── train.py                  # Training script
+│   ├── test.py                   # Testing / decoding script
+│   ├── transformer.py            # Base Transformer architecture
+│   ├── independent_feature_transformer.py
+│   ├── binary_feature_transformer.py
+│   ├── dual_source_transformer.py
+│   ├── dataloader.py             # Data loading and vocabulary
+│   ├── trainer.py                # Training loop
+│   ├── decoding.py               # Beam search / greedy decoding
+│   ├── util.py                   # Utilities and argument parsing
+│   ├── model.py                  # Transducer models
+│   ├── accuracies/               # Overall accuracy computation
+│   ├── l_nl_accuracies/          # L-shaped vs non-L-shaped accuracy
+│   ├── stem_accuracies/          # Stem-level accuracy analysis
+│   └── stem_accuracy_by_tag/     # Per-tag stem accuracy analysis
+├── data/
+│   ├── 10L_90NL/                 # Train/dev/test splits
+│   ├── 50L_50NL/
+│   ├── 90L_10NL/
+│   ├── predictions/              # Model predictions
+│   ├── analysis/                 # Accuracy CSVs and analysis results
+│   └── plots/                    # Generated figures
+├── train_*.sh                    # Training shell scripts per condition/run
+├── test_*.sh                     # Testing shell scripts per condition/run
+├── requirements.txt
+└── README.md
 ```
 
-## 🔧 Configuration
+## Usage
 
-### Environment Variables for Cloud Training
+### Training
 
-- `HF_TOKEN`: Your Hugging Face token for model upload
-- `MODEL_NAME`: Name for your model on HF Hub
-- `DATASET_NAME`: Dataset to train (10L_90NL, 50L_50NL, 90L_10NL)
-- `RUN_NUMBER`: Run number (1, 2, 3)
-- `WANDB_PROJECT`: Weights & Biases project name
-
-### Model Configuration
-
-The cloud training script uses optimized settings for cloud infrastructure:
-
-- **Batch Size**: 32 (GPU) / 16 (CPU)
-- **Learning Rate**: 0.001
-- **Max Epochs**: 100 (reduced for cloud)
-- **Max Updates**: 5000 (reduced for cloud)
-- **Gradient Accumulation**: 4 steps
-- **Mixed Precision**: Enabled on GPU
-
-## 📊 Training Options
-
-### 1. Local Training
-Use `scripts/train_huggingface.py` for local training with full control over hyperparameters.
-
-### 2. Cloud Training
-Use `scripts/hf_cloud_training.py` for training on Hugging Face Spaces with optimized cloud settings.
-
-### 3. Batch Training
-Use `scripts/train_all_hf.py` to train all datasets and runs automatically.
-
-## 🎯 Datasets
-
-The model supports three dataset configurations:
-
-- **10L_90NL**: 10% labeled, 90% non-labeled data
-- **50L_50NL**: 50% labeled, 50% non-labeled data  
-- **90L_10NL**: 90% labeled, 10% non-labeled data
-
-Each dataset has 3 runs with different random splits.
-
-## 📈 Monitoring
-
-### Weights & Biases
-Training progress is automatically logged to Weights & Biases when configured:
-
-- Training/validation loss
-- Learning rate schedule
-- Model parameters
-- Training time per epoch
-
-### Hugging Face Hub
-Models are automatically uploaded to the Hugging Face Hub with:
-
-- Model weights
-- Configuration files
-- Vocabulary files
-- Training arguments
-- Model card
-
-## 🚀 Deployment
-
-### Hugging Face Spaces
-1. Create a new Space with Docker SDK
-2. Set hardware to GPU for faster training
-3. Configure environment variables
-4. Upload your data
-5. Launch the Space
-
-### Local Deployment
-1. Install dependencies
-2. Configure data paths
-3. Run training script
-4. Upload models to HF Hub
-
-## 🔍 Model Usage
-
-After training, your models will be available on the Hugging Face Hub:
-
-```python
-from transformers import AutoModel, AutoTokenizer
-
-# Load your trained model
-model = AutoModel.from_pretrained("your-username/morphological-transformer")
-tokenizer = AutoTokenizer.from_pretrained("your-username/morphological-transformer")
-
-# Use for inference
-input_text = "example input"
-output = model.generate(input_text)
+```bash
+python scripts/train.py \
+    --arch independentfeature \
+    --dataset taginbrackets \
+    --train data/10L_90NL/train/run1/train.10L_90NL_1_1.src \
+            data/10L_90NL/train/run1/train.10L_90NL_1_1.tgt \
+    --dev   data/10L_90NL/dev/run1/dev.10L_90NL_1_1.src \
+            data/10L_90NL/dev/run1/dev.10L_90NL_1_1.tgt \
+    --model checkpoints/10L_90NL_1_1 \
+    --embed_dim 256 --src_hs 1024 --trg_hs 1024 \
+    --src_layer 4 --trg_layer 4 --nb_heads 4 \
+    --dropout 0.3 --bs 400 --max_steps 10000 \
+    --warmup_steps 4000 --lr 0.001 --label_smooth 0.1
 ```
 
-## 📝 Citation
+Batch training scripts are provided for each condition and run (e.g., `train_10L_run1.sh`).
 
-If you use this code, please cite:
+### Testing
+
+```bash
+python scripts/test.py \
+    --arch independentfeature \
+    --dataset taginbrackets \
+    --train data/10L_90NL/train/run1/train.10L_90NL_1_1.src \
+            data/10L_90NL/train/run1/train.10L_90NL_1_1.tgt \
+    --dev   data/10L_90NL/dev/run1/dev.10L_90NL_1_1.src \
+            data/10L_90NL/dev/run1/dev.10L_90NL_1_1.tgt \
+    --test  data/10L_90NL/test/run1/test.10L_90NL_1_1.src \
+            data/10L_90NL/test/run1/test.10L_90NL_1_1.tgt \
+    --model checkpoints/10L_90NL_1_1 \
+    --load  checkpoints/10L_90NL_1_1.epoch_104 \
+    --eval_test
+```
+
+Batch testing scripts are provided (e.g., `test_10L_run1.sh`).
+
+### Analysis
+
+Analysis scripts under `scripts/` compute accuracies at different granularities:
+
+- `scripts/accuracies/` &mdash; Overall accuracy and box plots
+- `scripts/l_nl_accuracies/` &mdash; Accuracy by L-shaped vs non-L-shaped paradigm membership
+- `scripts/stem_accuracies/` &mdash; Stem-level accuracy
+- `scripts/stem_accuracy_by_tag/` &mdash; Per-tag and per-lemma accuracy with clustering
+
+## Requirements
+
+See `requirements.txt`. Install with:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Citation
 
 ```bibtex
-@misc{morphological-transformer,
-  title={Morphological Transformer for Reinflection},
-  author={Your Name},
-  year={2024},
-  publisher={Hugging Face},
-  howpublished={\url{https://huggingface.co/your-username/morphological-transformer}}
+@inproceedings{Wiemerslage2026feature,
+    title     = {Feature-Informed Morphological Inflection},
+    author    = {Wiemerslage, Adam and Akhilesh},
+    booktitle = {Proceedings of the 2026 Joint International Conference on Computational Linguistics, Language Resources and Evaluation (LREC-COLING 2026)},
+    year      = {2026}
 }
 ```
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.

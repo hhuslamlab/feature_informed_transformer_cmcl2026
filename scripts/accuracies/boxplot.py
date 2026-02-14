@@ -7,16 +7,30 @@ from pathlib import Path
 import os
 
 def create_accuracy_boxplot():
-    """Create boxplot comparing accuracies between vanilla, dual source, feature invariant, and character separated transformers"""
+    """Create boxplot comparing accuracies between vanilla, dual source, feature invariant, character separated, and feature-geometric transformers"""
 
     # Paths to accuracy files
-    vanilla_file = Path("../../data/analysis/accuracies/overall_accuracies.csv")
+    vanilla_file = Path("../../data/analysis/accuracies/vanilla/overall_accuracies_vanilla.csv")
     independent_feature_file = Path("../../data/analysis/accuracies/overall_accuracies_independent_feature.csv")
     feature_invariant_file = Path("../../data/analysis/accuracies/overall_accuracies_feature_invariant.csv")
     sep_char_file = Path("../../data/analysis/accuracies/overall_accuracies_sep_char.csv")
+    binaryfeature_file = Path("../../data/analysis/accuracies/overall_accuracies_binaryfeature.csv")
 
-    if not vanilla_file.exists() or not independent_feature_file.exists() or not feature_invariant_file.exists() or not sep_char_file.exists():
-        print(f"Error: Accuracy files not found")
+    # Check which files exist
+    missing_files = []
+    if not vanilla_file.exists():
+        missing_files.append('vanilla')
+    if not independent_feature_file.exists():
+        missing_files.append('independent_feature')
+    if not feature_invariant_file.exists():
+        missing_files.append('feature_invariant')
+    if not sep_char_file.exists():
+        missing_files.append('sep_char')
+    if not binaryfeature_file.exists():
+        missing_files.append('binaryfeature')
+
+    if missing_files:
+        print(f"Error: Accuracy files not found for: {missing_files}")
         return
 
     # Read all CSV files
@@ -24,25 +38,27 @@ def create_accuracy_boxplot():
     df_dual = pd.read_csv(independent_feature_file)
     df_feature = pd.read_csv(feature_invariant_file)
     df_sep_char = pd.read_csv(sep_char_file)
+    df_binaryfeature = pd.read_csv(binaryfeature_file)
 
     # Check if required columns exist
-    for df, name in [(df_vanilla, 'vanilla'), (df_dual, 'dual_source'), (df_feature, 'feature_invariant'), (df_sep_char, 'sep_char')]:
+    for df, name in [(df_vanilla, 'vanilla'), (df_dual, 'dual_source'), (df_feature, 'feature_invariant'), (df_sep_char, 'sep_char'), (df_binaryfeature, 'binaryfeature')]:
         if 'filename' not in df.columns or 'accuracy' not in df.columns:
             print(f"Error: {name} CSV must have 'filename' and 'accuracy' columns")
             return
 
-    # Add dataset labels
+    # Add dataset labels (shortened for ACL readability)
     df_vanilla['dataset'] = 'Vanilla'
-    df_dual['dataset'] = 'Dual Source'
-    df_feature['dataset'] = 'Feature Invariant'
-    df_sep_char['dataset'] = 'Character separated'
+    df_dual['dataset'] = 'Feat.-Onehot'
+    df_feature['dataset'] = 'Feat. Inv.'
+    df_sep_char['dataset'] = 'Char. Sep.'
+    df_binaryfeature['dataset'] = 'Feat.-Geom.'
 
-    # Combine datasets in desired order: Vanilla, Feature Invariant, Dual Source, Character separated
-    df_combined = pd.concat([df_vanilla, df_feature, df_dual, df_sep_char], ignore_index=True)
-    
+    # Combine datasets in desired order: Vanilla, Character separated, Feature Invariant, Feature-Onehot, Feature-Geometric
+    df_combined = pd.concat([df_vanilla, df_sep_char, df_feature, df_dual, df_binaryfeature], ignore_index=True)
+
     # Set categorical order to ensure correct ordering in plot
-    df_combined['dataset'] = pd.Categorical(df_combined['dataset'], 
-                                           categories=['Vanilla', 'Feature Invariant', 'Dual Source', 'Character separated'],
+    df_combined['dataset'] = pd.Categorical(df_combined['dataset'],
+                                           categories=['Vanilla', 'Char. Sep.', 'Feat. Inv.', 'Feat.-Onehot', 'Feat.-Geom.'],
                                            ordered=True)
 
     # Extract condition from filename (first part before first underscore)
@@ -64,37 +80,40 @@ def create_accuracy_boxplot():
     plt.style.use('default')
     sns.set_palette("husl")
 
-    # Create the boxplot - optimized for 2-column LaTeX layout
-    # Wider figure size for better readability when scaled to \columnwidth
-    plt.figure(figsize=(8, 5))  # Optimized for \columnwidth in 2-column layout, wider for 4 datasets
+    # Create the boxplot - sized for full-width figure* (\textwidth ≈ 6.3")
+    fig, ax = plt.subplots(figsize=(6.3, 3.2))
 
     # Create boxplot with hue for dataset comparison
-    # Palette order: Vanilla, Feature Invariant, Dual Source, Character separated
-    ax = sns.boxplot(data=df_filtered, x='condition', y='accuracy', hue='dataset',
-                     palette=['#D55E00', '#0072B2', '#CC79A7', '#009E73'])  # Color-blind friendly: Vermillion, Blue, Reddish purple, Bluish green
+    # Palette order: Vanilla, Character separated, Feature Invariant, Feature-Onehot, Feature-Geometric
+    sns.boxplot(data=df_filtered, x='condition', y='accuracy', hue='dataset', ax=ax,
+                palette=['#D55E00', '#009E73', '#0072B2', '#CC79A7', '#F0E442'],
+                linewidth=1.0, fliersize=3)
 
     # Add strip plot for individual points (without legend)
     sns.stripplot(data=df_filtered, x='condition', y='accuracy', hue='dataset',
-                  dodge=True, color='black', alpha=0.6, size=2.5, jitter=True,
-                  legend=False)
+                  dodge=True, color='black', alpha=0.7, size=2.5, jitter=True,
+                  legend=False, ax=ax)
 
+    # Customize the plot
+    ax.set_xlabel('Condition', fontsize=11)
+    ax.set_ylabel('Accuracy (%)', fontsize=11)
+    ax.set_ylim(0, 100)
+    ax.grid(True, alpha=0.3, linewidth=0.3)
 
-    # Customize the plot - larger fonts for 2-column layout
-    plt.xlabel('Condition', fontsize=16, fontweight='bold')
-    plt.ylabel('Accuracy (%)', fontsize=16, fontweight='bold')
-    plt.ylim(0, 100)
-    plt.grid(True, alpha=0.3)
-    plt.legend(title='', loc='lower right', framealpha=0.9, fontsize=16)
-    
     # Set custom x-axis labels
     ax.set_xticks([0, 1, 2])
-    ax.set_xticklabels(['10%L-90%NL', '50%L-50%NL', '90%L-10%NL'])
-    
-    # Increase tick label sizes
-    ax.tick_params(labelsize=16)
+    ax.set_xticklabels(['10%L-90%NL', '50%L-50%NL', '90%L-10%NL'], fontsize=10)
+
+    # Tick label sizes
+    ax.tick_params(labelsize=10)
+
+    # Legend below plot
+    ax.legend(title='', loc='upper center', bbox_to_anchor=(0.5, -0.22),
+              ncol=5, framealpha=0.9, fontsize=9, columnspacing=1.0)
 
     # Adjust layout
     plt.tight_layout()
+    plt.subplots_adjust(bottom=0.28)
 
     # Save the plot
     output_file = plots_dir / "accuracy_comparison_boxplot.png"
@@ -109,7 +128,7 @@ def create_accuracy_boxplot():
     # Show statistics
     print("\nAccuracy Statistics by Condition and Dataset:")
     print("=" * 50)
-    for dataset in ['Vanilla', 'Feature Invariant', 'Dual Source', 'Character separated']:
+    for dataset in ['Vanilla', 'Char. Sep.', 'Feat. Inv.', 'Feat.-Onehot', 'Feat.-Geom.']:
         print(f"\n{dataset}:")
         dataset_data = df_filtered[df_filtered['dataset'] == dataset]
         for condition in valid_conditions:
@@ -122,7 +141,7 @@ def create_accuracy_boxplot():
                 print(f"    Min: {condition_data.min():.1f}")
                 print(f"    Max: {condition_data.max():.1f}")
 
-    plt.show()
+    plt.close()
 
 if __name__ == "__main__":
     create_accuracy_boxplot()

@@ -205,12 +205,13 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
 
 
 if __name__ == "__main__":
-    lemma_dict_path = "../../data/nevins_data/ipa_clean_lshaped_dict.json"
+    lemma_dict_path = "../../data/ipa_clean_lshaped_dict.json"
     prediction_types = [
         ("vanilla", "predictions_vanilla"),
         ("character_separated", "processed_predictions_sep_char"),
         ("independent_feature", "predictions_independent_feature"),
         ("feature_invariant", "predictions_feature_invariant"),
+        ("feature_geometric", "predictions_binaryfeature"),
     ]
 
     for pred_type, pred_dir in prediction_types:

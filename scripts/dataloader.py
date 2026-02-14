@@ -22,6 +22,7 @@ STEP_IDX = 4
 
 class Dataloader(object):
     def __init__(self):
+        # Put tensors on CUDA if available, else CPU
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
@@ -121,10 +122,15 @@ class Seq2SeqDataLoader(Dataloader):
             trg_mask_b = trg_mask[:, idx_]
             src_len = int(src_mask_b.sum(dim=0).max().item())
             trg_len = int(trg_mask_b.sum(dim=0).max().item())
-            src_data_b = src_data[:src_len, idx_].to(self.device)
-            trg_data_b = trg_data[:trg_len, idx_].to(self.device)
-            src_mask_b = src_mask_b[:src_len].to(self.device)
-            trg_mask_b = trg_mask_b[:trg_len].to(self.device)
+            src_data_b = src_data[:src_len, idx_]
+            trg_data_b = trg_data[:trg_len, idx_]
+            src_mask_b = src_mask_b[:src_len]
+            trg_mask_b = trg_mask_b[:trg_len]
+            if self.device is not None:
+                src_data_b = src_data_b.cuda()
+                trg_data_b = trg_data_b.cuda()
+                src_mask_b = src_mask_b.cuda()
+                trg_mask_b = trg_mask_b.cuda()
             yield (src_data_b, src_mask_b, trg_data_b, trg_mask_b)
 
     def train_batch_sample(self, batch_size):
@@ -148,7 +154,10 @@ class Seq2SeqDataLoader(Dataloader):
                 s.append(self.source_c2i[x])
             else:
                 s.append(self.attr_c2i[x])
-        return torch.tensor(s, device=self.device).view(seq_len, 1)
+        tensor = torch.tensor(s).view(seq_len, 1)
+        if self.device is not None:
+            tensor = tensor.cuda()
+        return tensor
 
     def decode_source(self, sent):
         if isinstance(sent, torch.Tensor):
@@ -164,10 +173,12 @@ class Seq2SeqDataLoader(Dataloader):
 
     def _sample(self, file):
         for src, trg in self._iter_helper(file):
-            yield (
-                torch.tensor(src, device=self.device).view(len(src), 1),
-                torch.tensor(trg, device=self.device).view(len(trg), 1),
-            )
+            src_tensor = torch.tensor(src).view(len(src), 1)
+            trg_tensor = torch.tensor(trg).view(len(trg), 1)
+            if self.device is not None:
+                src_tensor = src_tensor.cuda()
+                trg_tensor = trg_tensor.cuda()
+            yield (src_tensor, trg_tensor)
 
     def train_sample(self):
         yield from self._sample(self.train_file)
@@ -398,21 +409,32 @@ class AlignSIGMORPHON2017Task1(AlignSeq2SeqDataLoader, SIGMORPHON2017Task1):
             trg_mask_b = trg_mask[:, idx_]
             src_len = int(src_mask_b.sum(dim=0).max().item())
             trg_len = int(trg_mask_b.sum(dim=0).max().item())
-            src_data_b = src_data[:src_len, idx_].to(self.device)
-            trg_data_b = trg_data[:trg_len, idx_].to(self.device)
-            src_mask_b = src_mask_b[:src_len].to(self.device)
-            trg_mask_b = trg_mask_b[:trg_len].to(self.device)
-            attr_data_b = attr_data[idx_, :].to(self.device)
+            src_data_b = src_data[:src_len, idx_]
+            trg_data_b = trg_data[:trg_len, idx_]
+            src_mask_b = src_mask_b[:src_len]
+            trg_mask_b = trg_mask_b[:trg_len]
+            if self.device is not None:
+                src_data_b = src_data_b.cuda()
+                trg_data_b = trg_data_b.cuda()
+                src_mask_b = src_mask_b.cuda()
+                trg_mask_b = trg_mask_b.cuda()
+            attr_data_b = attr_data[idx_, :]
+            if self.device is not None:
+                attr_data_b = attr_data_b.cuda()
             yield ((src_data_b, attr_data_b), src_mask_b, trg_data_b, trg_mask_b)
 
     def _sample(self, file):
         for src, trg, tags in self._iter_helper(file):
+            src_tensor = torch.tensor(src).view(len(src), 1)
+            tags_tensor = torch.tensor(tags).view(1, len(tags))
+            trg_tensor = torch.tensor(trg).view(len(trg), 1)
+            if self.device is not None:
+                src_tensor = src_tensor.cuda()
+                tags_tensor = tags_tensor.cuda()
+                trg_tensor = trg_tensor.cuda()
             yield (
-                (
-                    torch.tensor(src, device=self.device).view(len(src), 1),
-                    torch.tensor(tags, device=self.device).view(1, len(tags)),
-                ),
-                torch.tensor(trg, device=self.device).view(len(trg), 1),
+                (src_tensor, tags_tensor),
+                trg_tensor,
             )
 
 
@@ -466,21 +488,32 @@ class TagSIGMORPHON2017Task1(SIGMORPHON2017Task1):
             trg_mask_b = trg_mask[:, idx_]
             src_len = int(src_mask_b.sum(dim=0).max().item())
             trg_len = int(trg_mask_b.sum(dim=0).max().item())
-            src_data_b = src_data[:src_len, idx_].to(self.device)
-            trg_data_b = trg_data[:trg_len, idx_].to(self.device)
-            src_mask_b = src_mask_b[:src_len].to(self.device)
-            trg_mask_b = trg_mask_b[:trg_len].to(self.device)
-            attr_data_b = attr_data[idx_, :].to(self.device)
+            src_data_b = src_data[:src_len, idx_]
+            trg_data_b = trg_data[:trg_len, idx_]
+            src_mask_b = src_mask_b[:src_len]
+            trg_mask_b = trg_mask_b[:trg_len]
+            if self.device is not None:
+                src_data_b = src_data_b.cuda()
+                trg_data_b = trg_data_b.cuda()
+                src_mask_b = src_mask_b.cuda()
+                trg_mask_b = trg_mask_b.cuda()
+            attr_data_b = attr_data[idx_, :]
+            if self.device is not None:
+                attr_data_b = attr_data_b.cuda()
             yield ((src_data_b, attr_data_b), src_mask_b, trg_data_b, trg_mask_b)
 
     def _sample(self, file):
         for src, trg, tags in self._iter_helper(file):
+            src_tensor = torch.tensor(src).view(len(src), 1)
+            tags_tensor = torch.tensor(tags).view(1, len(tags))
+            trg_tensor = torch.tensor(trg).view(len(trg), 1)
+            if self.device is not None:
+                src_tensor = src_tensor.cuda()
+                tags_tensor = tags_tensor.cuda()
+                trg_tensor = trg_tensor.cuda()
             yield (
-                (
-                    torch.tensor(src, device=self.device).view(len(src), 1),
-                    torch.tensor(tags, device=self.device).view(1, len(tags)),
-                ),
-                torch.tensor(trg, device=self.device).view(len(trg), 1),
+                (src_tensor, tags_tensor),
+                trg_tensor,
             )
 
 
@@ -601,3 +634,162 @@ class Transliteration(Seq2SeqDataLoader):
 
 class AlignTransliteration(AlignSeq2SeqDataLoader, Transliteration):
     pass
+
+
+class TagInBracketsDataLoader(Seq2SeqDataLoader):
+    """DataLoader for format where tags are inside <> brackets in the source."""
+    
+    def __init__(self, train_file, dev_file, test_file=None, shuffle=False):
+        # Convert file lists to tuples for source-target pairs
+        if isinstance(train_file, list) and len(train_file) == 2:
+            self.train_file = tuple(train_file)
+        else:
+            self.train_file = train_file
+            
+        if isinstance(dev_file, list) and len(dev_file) == 2:
+            self.dev_file = tuple(dev_file)
+        else:
+            self.dev_file = dev_file
+            
+        if test_file is not None:
+            if isinstance(test_file, list) and len(test_file) == 2:
+                self.test_file = tuple(test_file)
+            else:
+                self.test_file = test_file
+        else:
+            self.test_file = None
+            
+        # Initialize parent class without calling build_vocab yet
+        super(Dataloader, self).__init__()
+        # Ensure device attribute exists for downstream code
+        if not hasattr(self, "device"):
+            self.device = None
+        self.shuffle = shuffle
+        self.batch_data: Dict[str, List] = dict()
+        self.nb_train, self.nb_dev, self.nb_test = 0, 0, 0
+        self.nb_attr = 0
+        self.source, self.target = self.build_vocab()
+        self.source_vocab_size = len(self.source)
+        self.target_vocab_size = len(self.target)
+        self.attr_c2i: Optional[Dict]
+        if self.nb_attr > 0:
+            self.source_c2i = {c: i for i, c in enumerate(self.source[: -self.nb_attr])}
+            self.attr_c2i = {
+                c: i + len(self.source_c2i)
+                for i, c in enumerate(self.source[-self.nb_attr :])
+            }
+        else:
+            self.source_c2i = {c: i for i, c in enumerate(self.source)}
+            self.attr_c2i = None
+        self.target_c2i = {c: i for i, c in enumerate(self.target)}
+        self.sanity_check()
+    
+    def build_vocab(self):
+        char_set, tag_set = set(), set()
+        self.nb_train = 0
+        for src_forms, trg_form in self.read_file(self.train_file):
+            self.nb_train += 1
+            # Extract characters from all source forms and target
+            for form in src_forms:
+                char_set.update(form['chars'])
+                tag_set.update(form['tags'])
+            char_set.update(trg_form)
+        self.nb_dev = sum([1 for _ in self.read_file(self.dev_file)])
+        if self.test_file is not None:
+            self.nb_test = sum([1 for _ in self.read_file(self.test_file)])
+        chars = sorted(list(char_set))
+        tags = sorted(list(tag_set))
+        self.nb_attr = len(tags)
+        source = [PAD, BOS, EOS, UNK] + chars + tags
+        target = [PAD, BOS, EOS, UNK] + chars
+        return source, target
+
+    def read_file(self, file):
+        # Handle both source and target files
+        if isinstance(file, tuple) and len(file) == 2:
+            src_file, trg_file = file
+            with open(src_file, "r", encoding="utf-8") as src_fp, open(trg_file, "r", encoding="utf-8") as trg_fp:
+                for src_line, trg_line in zip(src_fp.readlines(), trg_fp.readlines()):
+                    src_line = src_line.strip()
+                    trg_line = trg_line.strip()
+                    if not src_line or not trg_line:
+                        continue
+                    # Split by # to get multiple source forms
+                    forms = src_line.split(" # ")
+                    src_forms = []
+                    for form in forms:
+                        # Parse each form to extract chars and tags
+                        chars, tags = self._parse_form(form)
+                        src_forms.append({'chars': chars, 'tags': tags})
+                    # Parse target form
+                    trg_form = trg_line.split()
+                    yield src_forms, trg_form
+        else:
+            # Single file mode (for compatibility)
+            with open(file, "r", encoding="utf-8") as fp:
+                for line in fp.readlines():
+                    line = line.strip()
+                    if not line:
+                        continue
+                    # Split by # to get multiple source forms
+                    forms = line.split(" # ")
+                    src_forms = []
+                    for form in forms:
+                        # Parse each form to extract chars and tags
+                        chars, tags = self._parse_form(form)
+                        src_forms.append({'chars': chars, 'tags': tags})
+                    yield src_forms
+
+    def _parse_form(self, form):
+        """Parse a form like 't ɾ a d ˈ u s e n <V;IND;PRS;3;PL>' into chars and tags."""
+        chars = []
+        tags = []
+        
+        # Split by spaces and process each token
+        tokens = form.split()
+        for token in tokens:
+            if token.startswith('<') and token.endswith('>'):
+                # This is a tag; keep the entire content inside <> as one tag token
+                tag_content = token[1:-1]  # Remove < and >
+                tags.append(tag_content)
+            else:
+                # This is a character
+                chars.append(token)
+        
+        return chars, tags
+
+    def _iter_helper(self, file):
+        for src_forms, trg_form in self.read_file(file):
+            # Combine all tags from the entire input (deduplicated, order-preserving)
+            seen = set()
+            combined_tags = []
+            for form in src_forms:
+                for tag in form['tags']:
+                    if tag not in seen:
+                        seen.add(tag)
+                        combined_tags.append(tag)
+
+            # Concatenate characters from all source forms (order-preserving)
+            first_chars = []
+            for i, form in enumerate(src_forms):
+                if i > 0:  # Add # separator between sources
+                    first_chars.append('#')
+                first_chars.extend(form['chars'])
+
+            src = [self.source_c2i[BOS]]
+            for i, tag in enumerate(combined_tags):
+                if i > 0:  # Add # separator between tags
+                    src.append(self.source_c2i.get('#', UNK_IDX))
+                src.append(self.attr_c2i.get(tag, UNK_IDX))
+            # Add # separator between tags and sources
+            if combined_tags and first_chars:
+                src.append(self.source_c2i.get('#', UNK_IDX))
+            for char in first_chars:
+                src.append(self.source_c2i.get(char, UNK_IDX))
+            src.append(self.source_c2i[EOS])
+
+            trg = [self.target_c2i[BOS]]
+            for char in trg_form:
+                trg.append(self.target_c2i.get(char, UNK_IDX))
+            trg.append(self.target_c2i[EOS])
+            yield src, trg

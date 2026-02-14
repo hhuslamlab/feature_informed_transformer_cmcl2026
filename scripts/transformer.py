@@ -282,8 +282,207 @@ class Transformer(nn.Module):
             decoder_layer, num_layers=trg_nb_layers, norm=nn.LayerNorm(embed_dim)
         )
         self.final_out = Linear(embed_dim, trg_vocab_size)
+        if tie_trg_embed:
+            self.final_out.weight = self.trg_embed.weight
+        self.dropout = nn.Dropout(dropout_p)
+        # self._reset_parameters()
+
+    def embed(self, src_batch, src_mask):
+        word_embed = self.embed_scale * self.src_embed(src_batch)
+        pos_embed = self.position_embed(src_batch)
+        embed = self.dropout(word_embed + pos_embed)
+        return embed
+
+    def encode(self, src_batch, src_mask):
+        embed = self.embed(src_batch, src_mask)
+        return self.encoder(embed, src_key_padding_mask=src_mask)
+
+    def decode(self, enc_hs, src_mask, trg_batch, trg_mask):
+        # Ensure everything is on the same device
+        device = enc_hs.device
+        if trg_batch.device != device:
+            trg_batch = trg_batch.to(device)
+        if trg_mask.device != device:
+            trg_mask = trg_mask.to(device)
+        if src_mask.device != device:
+            src_mask = src_mask.to(device)
+
+        word_embed = self.embed_scale * self.trg_embed(trg_batch)
+        pos_embed = self.position_embed(trg_batch)
+        embed = self.dropout(word_embed + pos_embed)
+
+        trg_seq_len = trg_batch.size(0)
+        causal_mask = self.generate_square_subsequent_mask(trg_seq_len)
+        dec_hs = self.decoder(
+            embed,
+            enc_hs,
+            tgt_mask=causal_mask,
+            tgt_key_padding_mask=trg_mask,
+            memory_key_padding_mask=src_mask,
+        )
+        return F.log_softmax(self.final_out(dec_hs), dim=-1)
+
+    def forward(self, src_batch, src_mask, trg_batch, trg_mask):
+        """
+        only for training
+        """
+        device = next(self.parameters()).device
+        if src_batch.device != device:
+            src_batch = src_batch.to(device)
+        if trg_batch.device != device:
+            trg_batch = trg_batch.to(device)
+        src_mask = (src_mask == 0).transpose(0, 1).to(device)
+        trg_mask = (trg_mask == 0).transpose(0, 1).to(device)
+        # trg_seq_len, batch_size = trg_batch.size()
+        enc_hs = self.encode(src_batch, src_mask)
+        # output: [trg_seq_len, batch_size, vocab_siz]
+        output = self.decode(enc_hs, src_mask, trg_batch, trg_mask)
+        return output
+
+    def count_nb_params(self):
+        model_parameters = filter(lambda p: p.requires_grad, self.parameters())
+        params = sum([np.prod(p.size()) for p in model_parameters])
+        return params
+
+    def loss(self, predict, target, reduction=True):
+        """
+        compute loss
+        """
+        # Ensure predict/target are on the same device
+        predict = predict.view(-1, self.trg_vocab_size)
+        device = predict.device
+
+        if not reduction:
+            # keep target's original shape for later reshaping, but move to device
+            target = target.to(device)
+            loss = F.nll_loss(
+                predict, target.view(-1), ignore_index=PAD_IDX, reduction="none"
+            )
+            loss = loss.view(target.shape)
+            loss = loss.sum(dim=0) / (target != PAD_IDX).sum(dim=0)
+            return loss
+
+        # nll_loss = F.nll_loss(predict, target.view(-1), ignore_index=PAD_IDX)
+        target = target.to(device).view(-1, 1)
+        non_pad_mask = target.ne(PAD_IDX)
+        nll_loss = -predict.gather(dim=-1, index=target)[non_pad_mask].mean()
+        smooth_loss = -predict.sum(dim=-1, keepdim=True)[non_pad_mask].mean()
+        smooth_loss = smooth_loss / self.trg_vocab_size
+        loss = (1.0 - self.label_smooth) * nll_loss + self.label_smooth * smooth_loss
+        return loss
+
+    def get_loss(self, data, reduction=True):
+        src, src_mask, trg, trg_mask = data
+        out = self.forward(src, src_mask, trg, trg_mask)
+        loss = self.loss(out[:-1], trg[1:], reduction=reduction)
+        return loss
 
     def generate_square_subsequent_mask(self, sz):
+        r"""Generate a square mask for the sequence. The masked positions are filled with float('-inf').
+        Unmasked positions are filled with float(0.0).
+        """
+        device = next(self.parameters()).device
+        mask = (torch.triu(torch.ones(sz, sz, device=device)) == 1).transpose(0, 1)
+        mask = (
+            mask.float()
+            .masked_fill(mask == 0, float("-inf"))
+            .masked_fill(mask == 1, float(0.0))
+        )
+        return mask
+
+
+class TagTransformer(Transformer):
+    def __init__(self, *, nb_attr, **kwargs):
+        super().__init__(**kwargs)
+        self.nb_attr = nb_attr
+        # 0 -> special token & tags, 1 -> character
+        self.special_embeddings = Embedding(2, self.embed_dim)
+
+    def embed(self, src_batch, src_mask):
+        word_embed = self.embed_scale * self.src_embed(src_batch)
+        char_mask = (src_batch < (self.src_vocab_size - self.nb_attr)).long()
+        special_embed = self.embed_scale * self.special_embeddings(char_mask)
+        pos_embed = self.position_embed(src_batch * char_mask)
+        embed = self.dropout(word_embed + pos_embed + special_embed)
+        return embed
+
+
+class UniversalTransformerEncoder(nn.Module):
+    def __init__(self, encoder_layer, num_layers, norm=None):
+        super(UniversalTransformerEncoder, self).__init__()
+        self.encoder_layer = encoder_layer
+        self.num_layers = num_layers
+        self.norm = norm
+
+    def forward(self, src, mask=None, src_key_padding_mask=None):
+        output = src
+
+        for i in range(self.num_layers):
+            output = self.encoder_layer(
+                output, src_mask=mask, src_key_padding_mask=src_key_padding_mask
+            )
+
+        if self.norm:
+            output = self.norm(output)
+
+        return output
+
+
+class UniversalTransformerDecoder(nn.Module):
+    def __init__(self, decoder_layer, num_layers, norm=None):
+        super(UniversalTransformerDecoder, self).__init__()
+        self.decoder_layer = decoder_layer
+        self.num_layers = num_layers
+        self.norm = norm
+
+    def forward(
+        self,
+        tgt,
+        memory,
+        tgt_mask=None,
+        memory_mask=None,
+        tgt_key_padding_mask=None,
+        memory_key_padding_mask=None,
+    ):
+        output = tgt
+
+        for i in range(self.num_layers):
+            output = self.decoder_layer(
+                output,
+                memory,
+                tgt_mask=tgt_mask,
+                memory_mask=memory_mask,
+                tgt_key_padding_mask=tgt_key_padding_mask,
+                memory_key_padding_mask=memory_key_padding_mask,
+            )
+
+        if self.norm:
+            output = self.norm(output)
+
+        return output
+
+
+class UniversalTransformer(Transformer):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        encoder_layer = TransformerEncoderLayer(
+            d_model=self.embed_dim,
+            nhead=self.nb_heads,
+            dim_feedforward=self.src_hid_size,
+            dropout=self.dropout_p,
+            attention_dropout=self.dropout_p,
+            activation_dropout=self.dropout_p,
+            normalize_before=True,
+        )
+        self.encoder = UniversalTransformerEncoder(
+            encoder_layer,
+            num_layers=self.src_nb_layers,
+            norm=nn.LayerNorm(self.embed_dim),
+        )
+        decoder_layer = TransformerDecoderLayer(
+            d_model=self.embed_dim,
+            nhead=self.nb_heads,
+            dim_feedforward=self.trg_hid_size,
             dropout=self.dropout_p,
             attention_dropout=self.dropout_p,
             activation_dropout=self.dropout_p,

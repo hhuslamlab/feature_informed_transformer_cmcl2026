@@ -60,16 +60,17 @@ def final(filename, dataset="vanilla"):
 def create_combined_l_nl_plot():
     """Create single combined L/NL accuracy plot for all datasets."""
     # Color-blind friendly color scheme (Okabe-Ito palette inspired)
-    model_colors = ['#D55E00', '#0072B2', '#CC79A7', '#009E73']  # Vermillion, Blue, Reddish purple, Bluish green
-    datasets = ["vanilla", "feature_invariant", "character_separated", "independent_feature"]
-    dataset_titles = ["Vanilla", "Feature Invariant", "Character Separated", "Dual Source"]
+    # Order: Vanilla, Char. Sep., Feat. Inv., Feat.-Onehot, Feat.-Geom.
+    model_colors = ['#D55E00', '#009E73', '#0072B2', '#CC79A7', '#F0E442']  # Vermillion, Bluish green, Blue, Reddish purple, Yellow
+    datasets = ["vanilla", "character_separated", "feature_invariant", "independent_feature", "feature_geometric"]
+    dataset_titles = ["Vanilla", "Char. Sep.", "Feat. Inv.", "Feat.-Onehot", "Feat.-Geom."]
 
-    # Optimized for 2-column LaTeX layout - matching boxplot.py
-    plt.figure(figsize=(7, 5))
+    # Sized for full-width figure* (\textwidth ≈ 6.3")
+    fig, ax = plt.subplots(figsize=(6.3, 3.2))
 
     # Position offsets for different models at each condition
     x_positions = [1, 2, 3]  # Base positions for conditions
-    model_offsets = [-0.3, -0.1, 0.1, 0.3]  # Small offsets to avoid overlap (4 models)
+    model_offsets = [-0.34, -0.17, 0.0, 0.17, 0.34]  # Small offsets to avoid overlap (5 models)
 
     legend_elements = []
 
@@ -103,7 +104,7 @@ def create_combined_l_nl_plot():
                                                           ("50L_50NL", l_acc_50L_50NL),
                                                           ("90L_10NL", l_acc_90L_10NL)]):
                 mean_val, _ = plot_single_point_with_ci(x_positions[cond_idx] + model_offsets[idx],
-                                                       l_acc, color, 'o', 8)
+                                                       l_acc, color, 'o', 6)
                 l_means.append(mean_val)
 
             # Plot NL-shape accuracies (squares)
@@ -112,31 +113,34 @@ def create_combined_l_nl_plot():
                                                            ("50L_50NL", nl_acc_50L_50NL),
                                                            ("90L_10NL", nl_acc_90L_10NL)]):
                 mean_val, _ = plot_single_point_with_ci(x_positions[cond_idx] + model_offsets[idx],
-                                                       nl_acc, color, 's', 8)
+                                                       nl_acc, color, 's', 6)
                 nl_means.append(mean_val)
 
             # Add to legend (only once per model)
             legend_elements.append(plt.Line2D([0], [0], marker='o', color=color, markerfacecolor=color,
-                                            markersize=8, label=f'{title} L-shape'))
+                                            markersize=6, label=f'{title} L'))
             legend_elements.append(plt.Line2D([0], [0], marker='s', color=color, markerfacecolor=color,
-                                            markersize=8, label=f'{title} NL-shape'))
+                                            markersize=6, label=f'{title} NL'))
 
         except Exception as e:
             print(f"Error processing {dataset_name}: {e}")
 
     # Customize the plot
-    plt.xticks(x_positions, ["10%L-90%NL", "50%L-50%NL", "90%L-10%NL"], fontsize=12)
-    plt.xlabel("Condition", fontsize=12, fontweight='bold')
-    plt.ylabel("Accuracy (%)", fontsize=12, fontweight='bold')
-    plt.ylim(bottom=0, top=100)
-    plt.grid(True, alpha=0.3)
-    plt.legend(handles=legend_elements, loc='lower center', bbox_to_anchor=(0.5, 0.02), framealpha=0.9, fontsize=7)
-    
-    # Set tick label sizes
-    ax = plt.gca()
-    ax.tick_params(labelsize=12)
+    ax.set_xticks(x_positions)
+    ax.set_xticklabels(["10L-90NL", "50L-50NL", "90L-10NL"], fontsize=10)
+    ax.set_xlabel("Condition", fontsize=11)
+    ax.set_ylabel("Accuracy (%)", fontsize=11)
+    ax.set_ylim(bottom=0, top=100)
+    ax.grid(True, alpha=0.3, linewidth=0.3)
+    ax.tick_params(labelsize=10)
+
+    # Legend outside plot area
+    ax.legend(handles=legend_elements, loc='upper center', bbox_to_anchor=(0.5, -0.22),
+              ncol=5, framealpha=0.9, fontsize=8, columnspacing=0.8, handletextpad=0.3,
+              borderpad=0.4, labelspacing=0.4)
 
     plt.tight_layout()
+    plt.subplots_adjust(bottom=0.32)
 
     # Save combined plots
     plt.savefig("../../data/analysis/accuracies/plots/l_vs_nl_accuracy_combined.png", dpi=300, bbox_inches='tight')
@@ -147,7 +151,7 @@ def create_combined_l_nl_plot():
     plt.close()
 
 
-def plot_single_point_with_ci(x, values, point_color, marker, markersize, z=1.96, horizontal_line_width=0.15):
+def plot_single_point_with_ci(x, values, point_color, marker, markersize, z=1.96, horizontal_line_width=0.08):
     """Plot a single point with confidence interval."""
     mean = statistics.mean(values)
     stdev = statistics.stdev(values)
@@ -158,10 +162,10 @@ def plot_single_point_with_ci(x, values, point_color, marker, markersize, z=1.96
     right = x + horizontal_line_width / 2
     bottom = mean + confidence_interval
 
-    plt.plot([x, x], [top, bottom], color=point_color, linewidth=2)
-    plt.plot([left, right], [top, top], color=point_color, linewidth=2)
-    plt.plot([left, right], [bottom, bottom], color=point_color, linewidth=2)
-    plt.plot(x, mean, marker, color=point_color, markersize=markersize, markeredgecolor='black', markeredgewidth=1)
+    plt.plot([x, x], [top, bottom], color=point_color, linewidth=1.2)
+    plt.plot([left, right], [top, top], color=point_color, linewidth=1.2)
+    plt.plot([left, right], [bottom, bottom], color=point_color, linewidth=1.2)
+    plt.plot(x, mean, marker, color=point_color, markersize=markersize, markeredgecolor='black', markeredgewidth=0.5)
 
     return mean, confidence_interval
 

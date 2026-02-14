@@ -86,6 +86,8 @@ def process_directory(predictions_dir, output_filename):
             short_filename = filename.split('.decode')[0]
         elif predictions_dir.name == "predictions_independent_feature":
             short_filename = filename.split('.decode')[0]
+        elif predictions_dir.name == "predictions_binaryfeature":
+            short_filename = filename.split('.decode')[0]
         else:  # predictions_dual_source
             short_filename = filename.split('.nll')[0]
 
@@ -202,6 +204,10 @@ def main():
     print("=== Processing Separated Character Predictions ===")
     sep_char_dir = base_path / "processed_predictions_sep_char"
     process_directory_sep_char(sep_char_dir, "overall_accuracies_sep_char.csv", base_path)
+
+    print("=== Processing Binary Feature (Feature-Geometric) Predictions ===")
+    binaryfeature_dir = base_path / "predictions_binaryfeature"
+    process_directory(binaryfeature_dir, "overall_accuracies_binaryfeature.csv")
 
     print("All processing complete!")
 

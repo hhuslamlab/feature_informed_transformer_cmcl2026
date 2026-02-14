@@ -10,8 +10,17 @@ Options:
     --eval_dev      Evaluate on dev set (default: True if neither flag specified)
     --eval_test     Evaluate on test set (default: True if neither flag specified)
 """
+import sys
+import os
+
+# Ensure we import from this directory's modules, not from other locations
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+import torch
 from decoding import get_decode_fn
 from train import Trainer
+from tqdm import tqdm
+import util
 
 
 class TestTrainer(Trainer):
@@ -30,6 +39,7 @@ class TestTrainer(Trainer):
             help='Evaluate on test set'
         )
 
+
     def reload_and_test_selective(self, model_fp, best_fp, batch_size, decode_fn,
                                    eval_dev=True, eval_test=True):
         """Reload model and test on selected datasets."""
@@ -39,9 +49,9 @@ class TestTrainer(Trainer):
         dec_bs = min(32, batch_size)
 
         if eval_dev:
-            self.calc_loss("dev", batch_size, -1)
             self.logger.info("decoding dev set")
             results = self.decode("dev", dec_bs, f"{model_fp}.decode", decode_fn)
+            torch.cuda.empty_cache()
             if results:
                 for result in results:
                     self.logger.info(f"DEV {result.long_desc} is {result.res} at epoch -1")
@@ -49,9 +59,9 @@ class TestTrainer(Trainer):
                 self.logger.info(f'DEV {model_fp.split("/")[-1]} {results_str}')
 
         if eval_test and self.data.test_file is not None:
-            self.calc_loss("test", batch_size, -1)
             self.logger.info("decoding test set")
             results = self.decode("test", dec_bs, f"{model_fp}.decode", decode_fn)
+            torch.cuda.empty_cache()
             if results:
                 for result in results:
                     self.logger.info(f"TEST {result.long_desc} is {result.res} at epoch -1")

@@ -159,41 +159,43 @@ def plot_accuracy_by_tag(dataset="vanilla"):
 
 def create_comparison_plot():
     """Create a comparison plot across all datasets."""
-    
-    datasets = ["vanilla", "feature_invariant", "independent_feature", "character_separated"]
-    dataset_titles = ["Vanilla", "Feature Invariant", "Dual Source", "Character Separated"]
-    
+
+    # Order: Vanilla, Char. Sep., Feat. Inv., Feat.-Onehot, Feat.-Geom.
+    datasets = ["vanilla", "character_separated", "feature_invariant", "independent_feature", "feature_geometric"]
+    dataset_titles = ["Vanilla", "Char. Sep.", "Feat. Inv.", "Feat.-Onehot", "Feat.-Geom."]
+
     all_data = []
-    
+
     for dataset in datasets:
         data_dir = f"../../data/analysis/stem_accuracy_by_tag/{dataset}/"
         summary_file = f"{data_dir}stem_acc_by_tag_summary.csv"
-        
+
         if os.path.exists(summary_file):
             df = pd.read_csv(summary_file)
             df['dataset'] = dataset
             all_data.append(df)
-    
+
     if not all_data:
         print("No data found for comparison plot")
         return
-    
+
     combined_df = pd.concat(all_data, ignore_index=True)
-    
+
     # Get top 12 most common tags (by total occurrences)
     tag_totals = combined_df.groupby('target_tag')['total'].sum().sort_values(ascending=False)
     top_tags = tag_totals.head(12).index.tolist()
-    
+
     # Filter to top tags
     plot_df = combined_df[combined_df['target_tag'].isin(top_tags)]
-    
+
     # Create grouped bar plot
     fig, ax = plt.subplots(figsize=(14, 8))
-    
+
     x = np.arange(len(top_tags))
-    width = 0.2
-    
-    colors = ['#D55E00', '#0072B2', '#CC79A7', '#009E73']
+    width = 0.15  # Narrower bars for 5 models
+
+    # Colors: Vanilla, Char. Sep., Feat. Inv., Feat.-Onehot, Feat.-Geom.
+    colors = ['#D55E00', '#009E73', '#0072B2', '#CC79A7', '#F0E442']
     
     for i, (dataset, title) in enumerate(zip(datasets, dataset_titles)):
         dataset_data = plot_df[plot_df['dataset'] == dataset]
@@ -204,11 +206,11 @@ def create_comparison_plot():
     
     ax.set_xlabel('Target Tag', fontsize=12, fontweight='bold')
     ax.set_ylabel('Stem Accuracy (%)', fontsize=12, fontweight='bold')
-    ax.set_title('Stem Accuracy by Target Tag - Model Comparison (Top 12 Tags)', 
+    ax.set_title('Stem Accuracy by Target Tag - Model Comparison (Top 12 Tags)',
                  fontsize=14, fontweight='bold')
-    ax.set_xticks(x + width * 1.5)
+    ax.set_xticks(x + width * 2)  # Center for 5 bars
     ax.set_xticklabels(top_tags, rotation=45, ha='right')
-    ax.legend(loc='lower right')
+    ax.legend(loc='lower right', fontsize=10)
     ax.set_ylim(0, 100)
     ax.grid(axis='y', alpha=0.3)
     
@@ -225,8 +227,9 @@ def create_comparison_plot():
 
 if __name__ == "__main__":
     # Generate plots for each dataset
-    datasets = ["vanilla", "feature_invariant", "independent_feature", "character_separated"]
-    
+    # Order: Vanilla, Char. Sep., Feat. Inv., Feat.-Onehot, Feat.-Geom.
+    datasets = ["vanilla", "character_separated", "feature_invariant", "independent_feature", "feature_geometric"]
+
     for dataset in datasets:
         plot_accuracy_by_tag(dataset)
     

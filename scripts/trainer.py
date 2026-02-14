@@ -10,7 +10,14 @@ from typing import List, Optional
 
 import numpy as np
 import torch
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import (
+    ReduceLROnPlateau,
+    CosineAnnealingLR,
+    ExponentialLR,
+    StepLR,
+    CyclicLR,
+    OneCycleLR
+)
 from tqdm import tqdm
 
 import util
@@ -34,6 +41,11 @@ class Optimizer(util.NamedEnum):
 class Scheduler(util.NamedEnum):
     reducewhenstuck = "reducewhenstuck"
     warmupinvsqr = "warmupinvsqr"
+    cosine = "cosine"
+    exponential = "exponential"
+    step = "step"
+    cyclic = "cyclic"
+    onecycle = "onecycle"
 
 
 def setup_seed(seed):
@@ -89,13 +101,15 @@ class BaseTrainer(object):
         parser.add_argument('--train', required=True, type=str, nargs='+')
         parser.add_argument('--dev', required=True, type=str, nargs='+')
         parser.add_argument('--test', default=None, type=str, nargs='+')
-        parser.add_argument('--model', required=True, help='dump model filename')
+        parser.add_argument('--model', required=True, help='model file to load for testing, or dump filename for training')
         parser.add_argument('--load', default='', help='load model and continue training; with `smart`, recover training automatically')
         parser.add_argument('--bs', default=20, type=int, help='training batch size')
         parser.add_argument('--epochs', default=20, type=int, help='maximum training epochs')
         parser.add_argument('--max_steps', default=0, type=int, help='maximum training steps')
         parser.add_argument('--warmup_steps', default=4000, type=int, help='number of warm up steps')
         parser.add_argument('--total_eval', default=-1, type=int, help='total number of evaluation')
+        parser.add_argument('--skip_dev_eval', default=False, action='store_true', help='skip dev set evaluation during training')
+        parser.add_argument('--save_last_only', default=False, action='store_true', help='only save the final epoch checkpoint')
         parser.add_argument('--optimizer', default=Optimizer.adam, type=Optimizer, choices=list(Optimizer))
         parser.add_argument('--scheduler', default=Scheduler.reducewhenstuck, type=Scheduler, choices=list(Scheduler))
         parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
@@ -107,6 +121,16 @@ class BaseTrainer(object):
         parser.add_argument('--cooldown', default=0, type=int, help='cooldown of `ReduceLROnPlateau`')
         parser.add_argument('--patience', default=0, type=int, help='patience of `ReduceLROnPlateau`')
         parser.add_argument('--discount_factor', default=0.5, type=float, help='discount factor of `ReduceLROnPlateau`')
+        parser.add_argument('--cosine_t_max', default=10, type=int, help='T_max for CosineAnnealingLR (epochs)')
+        parser.add_argument('--exp_gamma', default=0.95, type=float, help='gamma for ExponentialLR')
+        parser.add_argument('--step_size', default=10, type=int, help='step size for StepLR')
+        parser.add_argument('--step_gamma', default=0.1, type=float, help='gamma for StepLR')
+        parser.add_argument('--cyclic_base_lr', default=1e-5, type=float, help='base_lr for CyclicLR')
+        parser.add_argument('--cyclic_max_lr', default=1e-3, type=float, help='max_lr for CyclicLR')
+        parser.add_argument('--cyclic_step_size_up', default=2000, type=int, help='step_size_up for CyclicLR')
+        parser.add_argument('--onecycle_pct_start', default=0.3, type=float, help='pct_start for OneCycleLR')
+        parser.add_argument('--onecycle_div_factor', default=25.0, type=float, help='div_factor for OneCycleLR')
+        parser.add_argument('--onecycle_final_div_factor', default=1e4, type=float, help='final_div_factor for OneCycleLR')
         parser.add_argument('--max_norm', default=0, type=float, help='gradient clipping max norm')
         parser.add_argument('--gpuid', default=[], nargs='+', type=int, help='choose which GPU to use')
         parser.add_argument('--loglevel', default='info', choices=['info', 'debug'])
@@ -133,8 +157,21 @@ class BaseTrainer(object):
 
     def load_model(self, model):
         assert self.model is None
+        # Be robust to accidentally quoted paths
+        if isinstance(model, str):
+            model = model.strip().strip('"').strip("'")
+        # Ensure classes referenced by the checkpoint (e.g., `transformer.Transformer`) are importable
+        try:
+            import transformer  # noqa: F401
+        except ModuleNotFoundError:
+            import sys as _sys
+            import os as _os
+            src_dir = _os.path.dirname(__file__)
+            if src_dir not in _sys.path:
+                _sys.path.insert(0, src_dir)
+            import transformer  # noqa: F401
         self.logger.info("load model in %s", model)
-        self.model = torch.load(model, map_location=self.device, weights_only=False)
+        self.model = torch.load(model, map_location=self.device)
         self.model = self.model.to(self.device)
         epoch = int(model.split("_")[-1])
         return epoch
@@ -194,6 +231,40 @@ class BaseTrainer(object):
             self.scheduler = util.WarmupInverseSquareRootSchedule(
                 self.optimizer, params.warmup_steps
             )
+        elif params.scheduler == Scheduler.cosine:
+            self.scheduler = CosineAnnealingLR(
+                self.optimizer, T_max=params.cosine_t_max
+            )
+        elif params.scheduler == Scheduler.exponential:
+            self.scheduler = ExponentialLR(
+                self.optimizer, gamma=params.exp_gamma
+            )
+        elif params.scheduler == Scheduler.step:
+            self.scheduler = StepLR(
+                self.optimizer, step_size=params.step_size, gamma=params.step_gamma
+            )
+        elif params.scheduler == Scheduler.cyclic:
+            self.scheduler = CyclicLR(
+                self.optimizer,
+                base_lr=params.cyclic_base_lr,
+                max_lr=params.cyclic_max_lr,
+                step_size_up=params.cyclic_step_size_up
+            )
+        elif params.scheduler == Scheduler.onecycle:
+            # Estimate total steps for OneCycleLR
+            if params.max_steps > 0:
+                total_steps = params.max_steps
+            else:
+                # Estimate based on epochs and data size
+                total_steps = params.epochs * (self.data.nb_train // params.bs)
+            self.scheduler = OneCycleLR(
+                self.optimizer,
+                max_lr=params.lr,
+                total_steps=total_steps,
+                pct_start=params.onecycle_pct_start,
+                div_factor=params.onecycle_div_factor,
+                final_div_factor=params.onecycle_final_div_factor
+            )
         else:
             raise ValueError
 
@@ -239,8 +310,15 @@ class BaseTrainer(object):
                 util.grad_norm(model.parameters()),
             )
             self.optimizer.step()
-            if not isinstance(self.scheduler, ReduceLROnPlateau):
+
+            # Step scheduler based on type
+            if isinstance(self.scheduler, (CyclicLR, OneCycleLR)):
+                # Step per batch for cyclic and one-cycle schedulers
                 self.scheduler.step()
+            elif not isinstance(self.scheduler, ReduceLROnPlateau):
+                # Step per batch for most other schedulers
+                self.scheduler.step()
+
             self.global_steps += 1
             losses += loss.item()
             cnt += 1
@@ -252,7 +330,11 @@ class BaseTrainer(object):
         if mode == TRAIN:
             return (self.data.train_batch_sample, ceil(self.data.nb_train / batch_size))
         elif mode == DEV:
-            return (self.data.dev_batch_sample, ceil(self.data.nb_dev / batch_size))
+            # For dual-source architecture, use evaluation-specific method
+            if hasattr(self.data, 'dev_batch_sample_eval'):
+                return (self.data.dev_batch_sample_eval, ceil(self.data.nb_dev / batch_size))
+            else:
+                return (self.data.dev_batch_sample, ceil(self.data.nb_dev / batch_size))
         elif mode == TEST:
             return (self.data.test_batch_sample, ceil(self.data.nb_test / batch_size))
         else:
@@ -260,9 +342,17 @@ class BaseTrainer(object):
 
     def calc_loss(self, mode, batch_size, epoch_idx) -> float:
         self.model.eval()
+        # For training dev evaluation, use regular batching to maintain consistency
+        # Only use dual-source eval format for test.py evaluation
         sampler, nb_batch = self.iterate_batch(mode, batch_size)
+
         loss, cnt = 0.0, 0
         for batch in tqdm(sampler(batch_size), total=nb_batch):
+            # Move batch tensors to device
+            if isinstance(batch, tuple):
+                batch = tuple(b.to(self.device) if isinstance(b, torch.Tensor) else b for b in batch)
+            else:
+                batch = batch.to(self.device) if isinstance(batch, torch.Tensor) else batch
             loss += self.model.get_loss(batch).item()
             cnt += 1
         loss = loss / cnt
@@ -283,16 +373,52 @@ class BaseTrainer(object):
         raise NotImplementedError
 
     def decode(self, mode, batch_size, write_fp, decode_fn) -> List[util.Eval]:
-        raise NotImplementedError
+        self.model.eval()
+        cnt = 0
+        sampler, nb_batch = self.iterate_batch(mode, batch_size)
+        with torch.no_grad():
+            with open(f"{write_fp}.{mode}.tsv", "w") as fp:
+                fp.write("prediction\ttarget\tloss\tdist\n")
+                for src, src_mask, trg, trg_mask in tqdm(
+                    sampler(batch_size), total=nb_batch
+                ):
+                    src = src.to(self.device)
+                    src_mask = src_mask.to(self.device)
+                    trg = trg.to(self.device)
+                    trg_mask = trg_mask.to(self.device)
+
+                    pred, _ = decode_fn(self.model, src, src_mask)
+                    self.evaluator.add(src, pred, trg)
+
+                    data = (src, src_mask, trg, trg_mask)
+                    losses = self.model.get_loss(data, reduction=False).cpu()
+
+                    pred = util.unpack_batch(pred)
+                    trg = util.unpack_batch(trg)
+                    for p, t, loss in zip(pred, trg, losses):
+                        dist = util.edit_distance(p, t)
+                        p = self.data.decode_target(p)
+                        t = self.data.decode_target(t)
+                        fp.write(f'{" ".join(p)}\t{" ".join(t)}\t{loss.item()}\t{dist}\n')
+                        cnt += 1
+        self.logger.info(f"finished decoding {cnt} {mode} instance")
+        results = self.evaluator.compute(reset=True)
+        return results
 
     def update_lr_and_stop_early(self, epoch_idx, devloss, estop):
         stop_early = True
 
-        if isinstance(self.scheduler, ReduceLROnPlateau):
-            prev_lr = self.get_lr()
-            self.scheduler.step(devloss)
-            curr_lr = self.get_lr()
+        prev_lr = self.get_lr()
 
+        if isinstance(self.scheduler, ReduceLROnPlateau):
+            self.scheduler.step(devloss)
+        elif isinstance(self.scheduler, (CosineAnnealingLR, ExponentialLR, StepLR)):
+            # Step per epoch for these schedulers
+            self.scheduler.step()
+
+        curr_lr = self.get_lr()
+
+        if isinstance(self.scheduler, ReduceLROnPlateau):
             if (
                 self.last_devloss - devloss
             ) < estop and prev_lr == curr_lr == self.min_lr:
@@ -327,7 +453,8 @@ class BaseTrainer(object):
         self.load_model(best_fp)
         self.calc_loss(DEV, batch_size, -1)
         self.logger.info("decoding dev set")
-        results = self.decode(DEV, batch_size, f"{model_fp}.decode", decode_fn)
+        dec_bs = min(32, batch_size)
+        results = self.decode(DEV, dec_bs, f"{model_fp}.decode", decode_fn)
         if results:
             for result in results:
                 self.logger.info(f"DEV {result.long_desc} is {result.res} at epoch -1")
@@ -337,7 +464,7 @@ class BaseTrainer(object):
         if self.data.test_file is not None:
             self.calc_loss(TEST, batch_size, -1)
             self.logger.info("decoding test set")
-            results = self.decode(TEST, batch_size, f"{model_fp}.decode", decode_fn)
+            results = self.decode(TEST, dec_bs, f"{model_fp}.decode", decode_fn)
             if results:
                 for result in results:
                     self.logger.info(
@@ -378,18 +505,24 @@ class BaseTrainer(object):
         for epoch_idx in range(start_epoch, max_epochs):
             self.train(epoch_idx, params.bs, params.max_norm)
             if not (
-                epoch_idx
-                and (epoch_idx % eval_every == 0 or epoch_idx + 1 == max_epochs)
+                (epoch_idx % eval_every == 0) or (epoch_idx + 1 == max_epochs)
             ):
                 continue
-            with torch.no_grad():
-                devloss = self.calc_loss(DEV, params.bs, epoch_idx)
-                eval_res = self.evaluate(DEV, params.bs, epoch_idx, decode_fn)
-            if self.update_lr_and_stop_early(epoch_idx, devloss, params.estop):
-                finish = True
-                break
-            self.save_model(epoch_idx, devloss, eval_res, params.model)
-            self.save_training(params.model)
+            if params.skip_dev_eval:
+                # Skip dev evaluation, just save model with epoch number
+                devloss = 0.0
+                eval_res = []
+            else:
+                with torch.no_grad():
+                    devloss = self.calc_loss(DEV, params.bs, epoch_idx)
+                    eval_res = self.evaluate(DEV, params.bs, epoch_idx, decode_fn)
+                if self.update_lr_and_stop_early(epoch_idx, devloss, params.estop):
+                    finish = True
+                    break
+            # Only save if not save_last_only, or if this is the last epoch
+            if not params.save_last_only or (epoch_idx + 1 == max_epochs):
+                self.save_model(epoch_idx, devloss, eval_res, params.model)
+                self.save_training(params.model)
         if finish or params.cleanup_anyway:
             best_fp, save_fps = self.select_model()
             with torch.no_grad():

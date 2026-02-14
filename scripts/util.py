@@ -163,10 +163,31 @@ class Evaluator(object):
         raise NotImplementedError
 
     def evaluate_all(
-        self, data_iter, batch_size, nb_data, model, decode_fn
+        self, data_iter, batch_size, nb_data, model, decode_fn, device=None
     ) -> List[Eval]:
-        for src, src_mask, trg, trg_mask in tqdm(data_iter(batch_size), total=nb_data):
-            pred, _ = decode_fn(model, src, src_mask)
+        if device is None:
+            device = next(model.parameters()).device
+
+        for batch_data in tqdm(data_iter(batch_size), total=nb_data):
+            # Handle both dual-source and standard formats
+            if len(batch_data) == 5:
+                # Dual-source format: (src_chars, src_features, src_mask, trg, trg_mask)
+                src, src_features, src_mask, trg, trg_mask = batch_data
+                src = src.to(device)
+                src_features = src_features.to(device)
+                src_mask = src_mask.to(device)
+                trg = trg.to(device)
+                trg_mask = trg_mask.to(device)
+                # Dual-source model will create empty features during evaluation
+                pred, _ = decode_fn(model, src, src_mask)
+            else:
+                # Standard format: (src, src_mask, trg, trg_mask)
+                src, src_mask, trg, trg_mask = batch_data
+                src = src.to(device)
+                src_mask = src_mask.to(device)
+                trg = trg.to(device)
+                trg_mask = trg_mask.to(device)
+                pred, _ = decode_fn(model, src, src_mask)
             self.add(src, pred, trg)
         return self.compute(reset=True)
 

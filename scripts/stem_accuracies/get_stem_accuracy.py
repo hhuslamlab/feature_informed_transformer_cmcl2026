@@ -177,7 +177,8 @@ if __name__ == "__main__":
         ("vanilla", "predictions_vanilla"),
         ("character_separated", "processed_predictions_sep_char"),
         ("independent_feature", "predictions_independent_feature"),
-        ("feature_invariant", "predictions_feature_invariant")
+        ("feature_invariant", "predictions_feature_invariant"),
+        ("feature_geometric", "predictions_binaryfeature")
     ]
 
     for pred_type, pred_dir in prediction_types:

@@ -1,8 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environments
+.venv/
+venv/
+
+# IDE / Editor
+.idea/
+.vscode/
+*.swp
+*~
+
+# OS
+.DS_Store
+
+# Project build artifacts
+output/
 uv.lock
+
+# Unused docs
 TRAINING_OPTIMIZATIONS.md
 SETUP_COMPLETE.md
 README_TRAINING.md
-output/
-.venv/
-scripts/__pycache__/
 EMBEDDING_SUMMARY.md
+
+# Tool configs (not part of project)
+.serena/
+cognition.pdf
+
+# Paper (separate submission)
+paper/
+
+# Nevins data (unpublished)
+data/nevins_data/
+data/predictions/predictions_nevins/
+data/analysis/accuracies/nevins/
+data/analysis/lemma_shape_analysis_nevins/
+data/analysis/stem_accuracy_by_lemma_tag_nevins/
+data/analysis/wug_test/*nevins*
+data/plots/stem_accuracy_nevins/
+data/plots/tag_clustering_nevins/
+
+# Nevins scripts
+scripts/wug_test/nevins/
+scripts/wug_test/*nevins*
+scripts/stem_accuracy_by_tag/calculate_stem_accuracy_nevins.py
+scripts/stem_accuracy_by_tag/plot_stem_accuracy_nevins.py

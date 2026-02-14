@@ -10,6 +10,15 @@ from transformer import Transformer
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 
+def is_transformer_variant(model):
+    """
+    Check if model is any Transformer variant using class name.
+    This avoids isinstance issues when classes are loaded from different module paths.
+    """
+    class_name = type(model).__name__
+    return 'Transformer' in class_name
+
+
 class Decode(util.NamedEnum):
     greedy = "greedy"
     beam = "beam"
@@ -38,7 +47,7 @@ class Decoder(object):
                 decode_fn = decode_greedy_mono
             elif isinstance(transducer, HMMTransducer):
                 decode_fn = decode_greedy_hmm
-            elif isinstance(transducer, Transformer):
+            elif is_transformer_variant(transducer):
                 decode_fn = decode_greedy_transformer
             else:
                 decode_fn = decode_greedy_default
@@ -56,7 +65,7 @@ class Decoder(object):
                 decode_fn = decode_beam_mono
             elif isinstance(transducer, HMMTransducer):
                 decode_fn = decode_beam_hmm
-            elif isinstance(transducer, Transformer):
+            elif is_transformer_variant(transducer):
                 decode_fn = decode_beam_transformer
             else:
                 decode_fn = decode_beam_search_default
@@ -215,7 +224,7 @@ def decode_greedy_transformer(
     """
     src_sentence: [seq_len]
     """
-    assert isinstance(transducer, Transformer)
+    assert is_transformer_variant(transducer), f"Expected Transformer variant, got {type(transducer).__name__}"
     transducer.eval()
     src_mask = (src_mask == 0).transpose(0, 1)
     enc_hs = transducer.encode(src_sentence, src_mask)
@@ -379,7 +388,7 @@ def decode_beam_transformer(
     """
     src_sentence: [seq_len]
     """
-    assert isinstance(transducer, Transformer)
+    assert is_transformer_variant(transducer), f"Expected Transformer variant, got {type(transducer).__name__}"
 
     transducer.eval()
     src_mask = (src_mask == 0).transpose(0, 1)
