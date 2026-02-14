@@ -16,7 +16,7 @@ We investigate how different representations of morphological features affect th
 | Independent-feature | `independentfeature` | Separate embedding per feature type |
 | Feature-geometric | `featuregeometric` | Feature geometry-aware encoding |
 | Binary-feature | `binaryfeature` | Binary feature vector representation |
-| Dual-source | `dualsource` | Separate encoder for lemma and features |
+
 
 ## Data
 
@@ -40,7 +40,7 @@ feature_informed/
 │   ├── transformer.py            # Base Transformer architecture
 │   ├── independent_feature_transformer.py
 │   ├── binary_feature_transformer.py
-│   ├── dual_source_transformer.py
+
 │   ├── dataloader.py             # Data loading and vocabulary
 │   ├── trainer.py                # Training loop
 │   ├── decoding.py               # Beam search / greedy decoding
@@ -120,13 +120,3 @@ See `requirements.txt`. Install with:
 pip install -r requirements.txt
 ```
 
-## Citation
-
-```bibtex
-@inproceedings{Wiemerslage2026feature,
-    title     = {Feature-Informed Morphological Inflection},
-    author    = {Wiemerslage, Adam and Akhilesh},
-    booktitle = {Proceedings of the 2026 Joint International Conference on Computational Linguistics, Language Resources and Evaluation (LREC-COLING 2026)},
-    year      = {2026}
-}
-```
