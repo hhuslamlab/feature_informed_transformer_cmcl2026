@@ -119,3 +119,7 @@ Install dependencies with [uv](https://docs.astral.sh/uv/):
 uv sync
 ```
 
+## Credits
+
+- [neural-transducer](https://github.com/shijie-wu/neural-transducer/)
+
