@@ -122,4 +122,5 @@ uv sync
 ## Credits
 
 - [neural-transducer](https://github.com/shijie-wu/neural-transducer/)
+- [modeling_spanish_acl](https://github.com/hhuslamlab/modeling_spanish_acl)
 
