@@ -58,7 +58,7 @@ feature_informed/
 │   └── plots/                    # Generated figures
 ├── train_*.sh                    # Training shell scripts per condition/run
 ├── test_*.sh                     # Testing shell scripts per condition/run
-├── requirements.txt
+├── pyproject.toml
 └── README.md
 ```
 
@@ -113,9 +113,9 @@ Analysis scripts under `scripts/` compute accuracies at different granularities:
 
 ## Requirements
 
-See `requirements.txt`. Install with:
+Install dependencies with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
