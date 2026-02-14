@@ -13,9 +13,8 @@ We investigate how different representations of morphological features affect th
 | Vanilla | `vanilla` | Standard transformer with features as a tag string |
 | Character-separated | `charsep` | Features separated by individual characters |
 | Feature-invariant | `featureinvariant` | Shared feature embedding across all feature types |
-| Independent-feature | `independentfeature` | Separate embedding per feature type |
+| Feature-onehot | `independentfeature` | One-hot feature vector representation |
 | Feature-geometric | `featuregeometric` | Feature geometry-aware encoding |
-| Binary-feature | `binaryfeature` | Binary feature vector representation |
 
 
 ## Data
