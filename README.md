@@ -1,10 +1,8 @@
 # Feature-Informed Morphological Inflection
 
-Transformer-based models for Spanish verb morphological inflection with different morphological feature representations. This repository accompanies the LREC 2026 paper.
+This repository accompanies the CMCL 2026 paper: Character-aware Transformers Learn an Irregular Morphological Pattern Yet None Generalize Like Humans
 
 ## Overview
-
-We investigate how different representations of morphological features affect the performance of sequence-to-sequence models on morphological inflection. The models take a lemma and a set of morphological features as input and produce the inflected form.
 
 ### Model Variants
 
