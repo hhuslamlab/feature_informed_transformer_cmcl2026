@@ -1,19 +1,62 @@
 # Feature-Informed Morphological Inflection
 
-This repository accompanies the CMCL 2026 paper: Character-aware Transformers Learn an Irregular Morphological Pattern Yet None Generalize Like Humans
+Code and data for the paper:
 
-## Overview
+> Akhilesh Kakolu Ramarao, Kevin Tang, Dinah Baer-Henney. *Character-aware Transformers Learn an Irregular Morphological Pattern Yet None Generalize Like Humans*. Proceedings of the Workshop on Cognitive Modeling and Computational Linguistics (CMCL 2026).
+
+## Installation
+
+### Prerequisites
+
+- Python 3.10+
+- PyTorch >= 1.9.0
+- [uv](https://docs.astral.sh/uv/) (Python package manager)
+- GPU (required for model training)
+- LaTeX with `pgfplots` package (for generating publication plots via tikzplotlib)
+
+### Setup
+
+```bash
+uv sync
+```
+
+## Experimental Design
+
+We train **36 models per architecture**: 3 conditions &times; 3 runs &times; 4 seeds.
+
+### Model identifiers
+
+Each model is identified as `{condition}_{run}_{seed_index}` (e.g., `90L_10NL_3_4`).
+
+| Condition | L-shaped % | NL-shaped % |
+|---|---|---|
+| `10L_90NL` | ~10% | ~90% |
+| `50L_50NL` | ~50% | ~50% |
+| `90L_10NL` | ~90% | ~10% |
 
 ### Model Variants
 
 | Architecture | `--arch` flag | Description |
 |---|---|---|
-| Vanilla | `vanilla` | Standard transformer with features as a tag string |
-| Character-separated | `charsep` | Features separated by individual characters |
-| Feature-invariant | `featureinvariant` | Shared feature embedding across all feature types |
-| Feature-onehot | `independentfeature` | One-hot feature vector representation |
-| Feature-geometric | `featuregeometric` | Feature geometry-aware encoding |
+| Vanilla | `transformer` | Standard transformer, all tokens treated identically |
+| Character-separated | `transformer` | Same model as vanilla; features separated by individual characters in input data |
+| Feature-invariant | `tagtransformer` | Tag tokens receive position-invariant encoding (position=0) |
+| Feature-onehot | `independentfeature` | One-hot feature vector per grammatical category |
+| Feature-geometric | `binaryfeature` | Binary feature encoding from Harley & Ritter (2002) |
 
+All architectures use `--dataset taginbrackets`.
+
+**Note:** Vanilla and Character-separated share the same `--arch transformer` flag &mdash; the difference is how morphological features are encoded in the `.src` input files. Feature-invariant uses `--arch tagtransformer`, where the `TagTransformer` gives tag tokens positional encoding 0.
+
+## Quick Reproduction
+
+```bash
+# Analysis only (uses pre-computed predictions)
+bash reproduce.sh
+
+# Full pipeline: train all models + analysis (requires GPU)
+bash reproduce.sh --train
+```
 
 ## Data
 
@@ -25,40 +68,129 @@ The data covers Spanish verb inflection with paradigm splits based on L-shaped (
 
 Each condition has 3 independent data splits (runs), each trained with 4 random seeds.
 
-Data files use `.src` (source: lemma + features) and `.tgt` (target: inflected form) format, organized under `data/{condition}/`.
-
-## Repository Structure
+Data files use `.src` (source: lemma + features) and `.tgt` (target: inflected form) format:
 
 ```
-feature_informed/
-├── scripts/
-│   ├── train.py                  # Training script
-│   ├── test.py                   # Testing / decoding script
-│   ├── transformer.py            # Base Transformer architecture
-│   ├── independent_feature_transformer.py
-│   ├── binary_feature_transformer.py
-
-│   ├── dataloader.py             # Data loading and vocabulary
-│   ├── trainer.py                # Training loop
-│   ├── decoding.py               # Beam search / greedy decoding
-│   ├── util.py                   # Utilities and argument parsing
-│   ├── model.py                  # Transducer models
-│   ├── accuracies/               # Overall accuracy computation
-│   ├── l_nl_accuracies/          # L-shaped vs non-L-shaped accuracy
-│   ├── stem_accuracies/          # Stem-level accuracy analysis
-│   └── stem_accuracy_by_tag/     # Per-tag stem accuracy analysis
-├── data/
-│   ├── 10L_90NL/                 # Train/dev/test splits
-│   ├── 50L_50NL/
-│   ├── 90L_10NL/
-│   ├── predictions/              # Model predictions
-│   ├── analysis/                 # Accuracy CSVs and analysis results
-│   └── plots/                    # Generated figures
-├── train_*.sh                    # Training shell scripts per condition/run
-├── test_*.sh                     # Testing shell scripts per condition/run
-├── pyproject.toml
-└── README.md
+data/
+├── 10L_90NL/
+│   ├── dev/run{1,2,3}/
+│   ├── test/run{1,2,3}/
+│   └── train/run{1,2,3}/
+├── 50L_50NL/
+│   └── ...
+└── 90L_10NL/
+    └── ...
 ```
+
+### Predictions
+
+Pre-computed predictions for all 36 models per architecture are in `data/predictions/`:
+
+```
+data/predictions/
+├── predictions_vanilla/              # .txt (one prediction per line)
+├── processed_predictions_sep_char/   # .txt (index,prediction format)
+├── predictions_feature_invariant/    # .decode.test.tsv
+├── predictions_independent_feature/  # .decode.test.tsv (+ .log files)
+└── predictions_binaryfeature/        # .decode.test.tsv (+ .log files)
+```
+
+Vanilla and character-separated predictions were originally generated by external systems (fairseq). Retraining via `scripts/train.py` is possible but may produce slightly different results.
+
+### Nonce verb data (Nevins test)
+
+Nonce verb stimuli for the wug test (paper Section 4.2) are in `data/nevins_data/`:
+
+- `nevins_test.src` &mdash; nonce verb test stimuli
+- `full_paradigm.src` / `full_paradigm.tgt` &mdash; full paradigm source/target
+- `*_mapping.json` &mdash; form/stem to MSD mappings
+
+## Analysis (Section 4)
+
+Each subsection below corresponds to a section in the paper. All analysis scripts are under `scripts/` and use relative paths from their own directory.
+
+### Section 4.1.1: Sequence accuracy
+
+**Overall accuracy** (Figure 1):
+
+```bash
+cd scripts/accuracies
+python calc_overall_accuracy.py   # Compute per-model accuracy CSVs
+python boxplot.py                 # Generate accuracy boxplot
+```
+
+**L vs NL accuracy** (Figure 2):
+
+```bash
+cd scripts/l_nl_accuracies
+python get_accuracy.py            # Compute per-model L/NL accuracy CSVs
+python plot_l_nl_accuracy.py      # Generate L vs NL accuracy plot
+```
+
+Output: `data/analysis/accuracies/`
+
+### Section 4.1.2: Stem accuracy (Figure 3)
+
+```bash
+cd scripts/stem_accuracies
+python get_stem_accuracy.py       # Compute per-model stem accuracy CSVs
+python plot_stem_accuracy.py      # Generate stem accuracy plot
+```
+
+Output: `data/analysis/stem_accuracies/`
+
+### Section 4.1.3: Paradigm shape analysis (Table 2, Figures 4-8)
+
+```bash
+cd scripts/stem_accuracy_by_tag
+bash run_analysis.sh              # Per-tag stem accuracy + plots
+python tag_cluster_paradigm.py    # Tag-level k-means clustering
+bash run_lemma_analysis.sh        # Per-lemma stem accuracy
+python lemma_cluster_paradigm.py  # Lemma-level clustering
+python lemma_shape_analysis.py    # Lemma shape analysis
+```
+
+Output: `data/analysis/stem_accuracy_by_tag/`, `data/plots/tag_clustering/`, `data/plots/lemma_clustering/`
+
+### Section 4.2.1: Nonce verb stem accuracy (Figure 9)
+
+```bash
+cd scripts/wug_test
+python calculate_wug_accuracies.py
+python calculate_nevins_test_accuracies.py
+python calculate_sep_char_wug_accuracies.py
+python calculate_vanilla_wug_accuracies.py
+
+cd nevins
+python model.py
+python model_sep_char.py
+python model_vanilla.py
+python model_stem_accuracy.py
+python model_sep_char_stem_accuracy.py
+python model_vanilla_stem_accuracy.py
+python human_stem_accuracy.py
+python plot_accuracies.py
+python plot_stem_accuracy_boxplot.py
+```
+
+Output: `data/analysis/wug_test/`
+
+### Section 4.2.2: Nonce verb paradigm shape (Figures 10-11)
+
+```bash
+cd scripts/wug_test/nevins
+python tag_stem_accuracy_all_models.py
+python human_tag_stem_accuracy.py
+python lemma_stem_accuracy_analysis.py
+python lemma_tag_clustering.py
+
+cd ..
+python nevins_tag_clustering.py
+```
+
+Output: `data/analysis/wug_test/`
+
+**Note:** `human_stem_accuracy.py` requires data from the sibling repo `../cognitive_modeling_aaacl/`. `human_tag_stem_accuracy.py` requires external participant data. Both are skipped automatically by `reproduce.sh` if the data is not available.
 
 ## Usage
 
@@ -95,30 +227,61 @@ python scripts/test.py \
             data/10L_90NL/test/run1/test.10L_90NL_1_1.tgt \
     --model checkpoints/10L_90NL_1_1 \
     --load  checkpoints/10L_90NL_1_1.epoch_104 \
-    --eval_test
+    --eval_test \
+    --decode beam --decode_beam_size 5 --bs 16
 ```
 
 Batch testing scripts are provided (e.g., `test_10L_run1.sh`).
 
-### Analysis
-
-Analysis scripts under `scripts/` compute accuracies at different granularities:
-
-- `scripts/accuracies/` &mdash; Overall accuracy and box plots
-- `scripts/l_nl_accuracies/` &mdash; Accuracy by L-shaped vs non-L-shaped paradigm membership
-- `scripts/stem_accuracies/` &mdash; Stem-level accuracy
-- `scripts/stem_accuracy_by_tag/` &mdash; Per-tag and per-lemma accuracy with clustering
-
-## Requirements
-
-Install dependencies with [uv](https://docs.astral.sh/uv/):
+## Tests
 
 ```bash
-uv sync
+uv sync --group test
+uv run pytest tests/
+```
+
+Tests verify data integrity: splits exist, prediction files cover all 36 models per architecture, shape info labels are valid, Nevins data is present, and L/NL ratios match experimental conditions.
+
+## Repository Structure
+
+```
+feature_informed/
+├── scripts/
+│   ├── train.py                     # Training script
+│   ├── test.py                      # Testing / decoding script
+│   ├── transformer.py               # Transformer & TagTransformer
+│   ├── independent_feature_transformer.py
+│   ├── binary_feature_transformer.py
+│   ├── dataloader.py                # Data loading and vocabulary
+│   ├── trainer.py                   # Training loop
+│   ├── decoding.py                  # Beam search / greedy decoding
+│   ├── util.py                      # Utilities and argument parsing
+│   ├── model.py                     # Transducer models
+│   ├── accuracies/                  # Overall accuracy (Section 4.1.1)
+│   ├── l_nl_accuracies/             # L vs NL accuracy (Section 4.1.1)
+│   ├── stem_accuracies/             # Stem accuracy (Section 4.1.2)
+│   ├── stem_accuracy_by_tag/        # Per-tag analysis (Section 4.1.3)
+│   ├── wug_test/                    # Nonce verb analysis (Section 4.2)
+│   │   └── nevins/                  # Nevins test evaluation
+│   └── shape_info/                  # Pre-computed L/NL labels per model
+├── data/
+│   ├── 10L_90NL/                    # Train/dev/test splits
+│   ├── 50L_50NL/
+│   ├── 90L_10NL/
+│   ├── predictions/                 # Pre-computed model predictions
+│   ├── nevins_data/                 # Nonce verb stimuli
+│   ├── analysis/                    # Analysis output CSVs
+│   └── plots/                       # Generated figures
+├── paper/                           # LaTeX source
+├── tests/                           # pytest data integrity tests
+├── reproduce.sh                     # Master reproduction script
+├── train_*.sh                       # Per-condition training scripts
+├── test_*.sh                        # Per-condition testing scripts
+├── pyproject.toml
+└── README.md
 ```
 
 ## Credits
 
 - [neural-transducer](https://github.com/shijie-wu/neural-transducer/)
 - [modeling_spanish_acl](https://github.com/hhuslamlab/modeling_spanish_acl)
-
