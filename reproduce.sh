@@ -160,7 +160,6 @@ python model_stem_accuracy.py
 python model_sep_char_stem_accuracy.py
 python model_vanilla_stem_accuracy.py
 
-# Human wug test data depends on external sibling repo
 HUMAN_STEM_DATA=""
 if [ -f "${HUMAN_STEM_DATA}" ]; then
     python human_stem_accuracy.py
