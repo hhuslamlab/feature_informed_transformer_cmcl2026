@@ -1,8 +1,6 @@
 # Feature-Informed Morphological Inflection
 
-Code and data for the paper:
-
-> Akhilesh Kakolu Ramarao, Kevin Tang, Dinah Baer-Henney. *Character-aware Transformers Learn an Irregular Morphological Pattern Yet None Generalize Like Humans*. Proceedings of the Workshop on Cognitive Modeling and Computational Linguistics (CMCL 2026).
+Code and data for the paper: *Character-aware Transformers Learn an Irregular Morphological Pattern Yet None Generalize Like Humans* (CMCL 2026).
 
 ## Installation
 
