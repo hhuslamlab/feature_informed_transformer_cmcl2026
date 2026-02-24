@@ -11,10 +11,10 @@ def report_accuracies():
         return
 
     df = pd.read_csv(data_path)
-    
+
     print("\nStem Accuracy by Condition:")
     print("-" * 40)
-    
+
     # Group by condition and calculate weighted average accuracy
     stats = df.groupby('condition').apply(
         lambda x: pd.Series({
@@ -22,7 +22,7 @@ def report_accuracies():
             'total_items': x['total'].sum()
         })
     )
-    
+
     print(stats)
 
 if __name__ == "__main__":

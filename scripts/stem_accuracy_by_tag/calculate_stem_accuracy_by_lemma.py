@@ -39,20 +39,20 @@ def build_form_to_lemma_map(lemma_dict):
     Returns: dict mapping normalized_form -> lemma
     """
     form_to_lemma = {}
-    
+
     for lemma, inflections in lemma_dict.items():
         for tag, form in inflections.items():
             normalized = normalize_form(form)
             # Store lemma without normalization for output
             form_to_lemma[normalized] = lemma
-    
+
     return form_to_lemma
 
 
 def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
     """Process predictions for a given prediction type and calculate stem accuracy by lemma"""
     print(f"\nProcessing {pred_type} predictions...")
-    
+
     # Load lemma dictionary
     print(f"  Loading lemma dictionary from {lemma_dict_path}...")
     try:
@@ -62,11 +62,11 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
     except Exception as e:
         print(f"  Error loading lemma dictionary: {e}")
         return
-    
+
     # Build reverse mapping
     form_to_lemma = build_form_to_lemma_map(lemma_dict)
     print(f"  Built mapping for {len(form_to_lemma)} unique forms")
-    
+
     # Prepare suffixes
     ar_suffixes = list(AR_SUFFIX_DICT.values())
     er_suffixes = list(ER_SUFFIX_DICT.values())
@@ -100,7 +100,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
                         else:
                             pred = line.replace(" ", "").replace("ˈ", "").strip()
                             pred_data.append((len(pred_data), pred))
-                
+
                 pred_data.sort(key=lambda x: x[0])
                 preds = [pred for _, pred in pred_data]
             except Exception as e:
@@ -114,7 +114,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
             else:
                 print(f"    No prediction file found for {model} in {pred_dir_name}")
                 continue
-            
+
             try:
                 df_pred = pd.read_csv(pred_file, sep='\t')
                 preds = [str(pred).replace(" ", "").replace("ˈ", "").strip() for pred in df_pred['prediction']]
@@ -145,25 +145,25 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
         preds_stems = []
         test_stems = []
         lemmas = []
-        
+
         for pred, test in zip(preds, test_data):
             stem_pred = get_stem(pred, suffixes)
             stem_test = get_stem(test, suffixes)
             preds_stems.append(stem_pred)
             test_stems.append(stem_test)
-            
+
             # Map test form to lemma
             normalized_test = normalize_form(test)
             lemma = form_to_lemma.get(normalized_test, None)
-            
+
             if lemma is None:
                 unmapped_forms.add(test)
-            
+
             lemmas.append(lemma)
 
         # Calculate stem accuracy by lemma
         lemma_stats = defaultdict(lambda: {'correct': 0, 'total': 0})
-        
+
         for pred_stem, test_stem, lemma in zip(preds_stems, test_stems, lemmas):
             if lemma is not None:
                 lemma_stats[lemma]['total'] += 1
@@ -193,14 +193,14 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
             }
             for lemma, stats in lemma_stats.items()
         ])
-        
+
         # Sort by accuracy for easier reading
         model_df = model_df.sort_values('accuracy', ascending=False)
-        
+
         # Create output directory
         output_dir = f"../../data/analysis/stem_accuracy_by_lemma/{pred_type}/"
         os.makedirs(output_dir, exist_ok=True)
-        
+
         # Save model-specific results
         model_df.to_csv(f"{output_dir}stem_acc_by_lemma_{model}.csv", index=False)
         print(f"    Saved results to {output_dir}stem_acc_by_lemma_{model}.csv")
@@ -214,12 +214,12 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
     if all_results:
         combined_df = pd.DataFrame(all_results)
         combined_df = combined_df.sort_values(['condition', 'run', 'lemma'])
-        
+
         output_dir = f"../../data/analysis/stem_accuracy_by_lemma/{pred_type}/"
         os.makedirs(output_dir, exist_ok=True)
         combined_df.to_csv(f"{output_dir}stem_acc_by_lemma_all_models.csv", index=False)
         print(f"\n  Saved combined results to {output_dir}stem_acc_by_lemma_all_models.csv")
-        
+
         # Create summary statistics by lemma across all models
         summary_by_lemma = combined_df.groupby('lemma').agg({
             'correct': 'sum',
@@ -230,12 +230,12 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
         summary_by_lemma = summary_by_lemma.sort_values('overall_accuracy', ascending=False)
         summary_by_lemma.to_csv(f"{output_dir}stem_acc_by_lemma_summary.csv", index=False)
         print(f"  Saved summary statistics to {output_dir}stem_acc_by_lemma_summary.csv")
-        
+
         # Print top and bottom lemmas
         print(f"\n  Top 10 lemmas by accuracy:")
         for idx, row in summary_by_lemma.head(10).iterrows():
             print(f"    {row['lemma']:<30} {row['overall_accuracy']:>6.2f}% ({row['correct']}/{row['total']})")
-        
+
         print(f"\n  Bottom 10 lemmas by accuracy:")
         for idx, row in summary_by_lemma.tail(10).iterrows():
             print(f"    {row['lemma']:<30} {row['overall_accuracy']:>6.2f}% ({row['correct']}/{row['total']})")
@@ -244,7 +244,7 @@ def process_predictions(pred_type, pred_dir_name, lemma_dict_path):
 if __name__ == "__main__":
     # Path to lemma dictionary
     lemma_dict_path = "../../data/nevins_data/ipa_clean_lshaped_dict.json"
-    
+
     # Process prediction types
     prediction_types = [
         ("vanilla", "predictions_vanilla"),

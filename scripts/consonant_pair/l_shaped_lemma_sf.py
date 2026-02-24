@@ -60,7 +60,7 @@ if __name__ == "__main__":
                 )
                 lemmas_.append(lemma)
                 forms_.append(fo)
-            except:
+            except Exception:
                 pass
         df["form"] = forms_
         df["lemma"] = lemmas_

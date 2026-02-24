@@ -4,7 +4,7 @@ Script to compute overall suffix accuracy for each condition.
 Usage:
     compute_overall_suffix_accuracy.py --condition
 """
-import sys, os, json
+import sys, os
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

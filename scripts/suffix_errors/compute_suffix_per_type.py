@@ -4,7 +4,7 @@ Script to compute average suffix accuracy per type for each condition.
 Usage:
     compute_suffix_per_type.py
 """
-import sys, os, json
+import sys, os
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))

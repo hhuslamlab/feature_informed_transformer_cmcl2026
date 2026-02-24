@@ -44,7 +44,7 @@ def extract_target_tag(line):
 def process_predictions(pred_type, pred_dir_name):
     """Process predictions for a given prediction type and calculate stem accuracy by tag"""
     print(f"\nProcessing {pred_type} predictions...")
-    
+
     # Prepare suffixes
     ar_suffixes = list(AR_SUFFIX_DICT.values())
     er_suffixes = list(ER_SUFFIX_DICT.values())
@@ -82,7 +82,7 @@ def process_predictions(pred_type, pred_dir_name):
                             # Normalize: remove spaces, remove stress markers, then strip
                             pred = line.replace(" ", "").replace("ˈ", "").strip()
                             pred_data.append((len(pred_data), pred))
-                
+
                 # Sort by index to ensure correct alignment with test data
                 pred_data.sort(key=lambda x: x[0])
                 preds = [pred for _, pred in pred_data]
@@ -98,7 +98,7 @@ def process_predictions(pred_type, pred_dir_name):
             else:
                 print(f"    No prediction file found for {model} in {pred_dir_name}")
                 continue
-            
+
             try:
                 df_pred = pd.read_csv(pred_file, sep='\t')
                 # Normalize: remove spaces, remove stress markers, then strip
@@ -141,7 +141,7 @@ def process_predictions(pred_type, pred_dir_name):
         # Extract stems
         preds_stems = []
         test_stems = []
-        
+
         for pred, test in zip(preds, test_data):
             stem_pred = get_stem(pred, suffixes)
             stem_test = get_stem(test, suffixes)
@@ -150,7 +150,7 @@ def process_predictions(pred_type, pred_dir_name):
 
         # Calculate stem accuracy by target tag
         tag_stats = defaultdict(lambda: {'correct': 0, 'total': 0})
-        
+
         for pred_stem, test_stem, tag in zip(preds_stems, test_stems, target_tags):
             if tag is not None:
                 tag_stats[tag]['total'] += 1
@@ -180,14 +180,14 @@ def process_predictions(pred_type, pred_dir_name):
             }
             for tag, stats in tag_stats.items()
         ])
-        
+
         # Sort by accuracy for easier reading
         model_df = model_df.sort_values('accuracy', ascending=False)
-        
+
         # Create output directory
         output_dir = f"../../data/analysis/stem_accuracy_by_tag/{pred_type}/"
         os.makedirs(output_dir, exist_ok=True)
-        
+
         # Save model-specific results
         model_df.to_csv(f"{output_dir}stem_acc_by_tag_{model}.csv", index=False)
         print(f"    Saved results to {output_dir}stem_acc_by_tag_{model}.csv")
@@ -196,12 +196,12 @@ def process_predictions(pred_type, pred_dir_name):
     if all_results:
         combined_df = pd.DataFrame(all_results)
         combined_df = combined_df.sort_values(['condition', 'run', 'target_tag'])
-        
+
         output_dir = f"../../data/analysis/stem_accuracy_by_tag/{pred_type}/"
         os.makedirs(output_dir, exist_ok=True)
         combined_df.to_csv(f"{output_dir}stem_acc_by_tag_all_models.csv", index=False)
         print(f"\n  Saved combined results to {output_dir}stem_acc_by_tag_all_models.csv")
-        
+
         # Create summary statistics by tag across all models
         summary_by_tag = combined_df.groupby('target_tag').agg({
             'correct': 'sum',

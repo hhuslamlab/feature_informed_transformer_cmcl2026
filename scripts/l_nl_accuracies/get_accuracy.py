@@ -2,7 +2,6 @@
 get L and NL accuracy for all prediction types
 """
 import pandas as pd
-import glob
 import os
 
 def process_predictions(pred_type, pred_dir_name):
@@ -79,7 +78,7 @@ def process_predictions(pred_type, pred_dir_name):
                             # Normalize: remove spaces, remove stress markers, then strip (matching calc_overall_accuracy.py)
                             pred = line.replace(" ", "").replace("ˈ", "").strip()
                             pred_data.append((len(pred_data), pred))  # Use line number as index
-                
+
                 # Sort by index to ensure correct alignment with test data
                 pred_data.sort(key=lambda x: x[0])
                 predictions = [pred for _, pred in pred_data]

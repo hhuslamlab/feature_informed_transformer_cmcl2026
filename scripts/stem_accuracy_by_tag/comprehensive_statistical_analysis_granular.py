@@ -35,15 +35,15 @@ def analyze_condition_specific_l_shape_granular(df):
 
     conditions = df['condition'].unique()
     base_tag = "V;IND;PRS;1;SG"
-    
+
     all_results = []
-    
+
     for condition in conditions:
         print(f"\nProcessing Condition: {condition}")
-        
+
         # Filter data for this condition
         cond_df = df[df['condition'] == condition]
-        
+
         # Pivot to get tags as columns
         df_pivot = cond_df.pivot_table(
             index=['lemma', 'model'],
@@ -56,13 +56,13 @@ def analyze_condition_specific_l_shape_granular(df):
             continue
 
         sbjv_tags = [col for col in df_pivot.columns if "V;SBJV" in col]
-        
+
         lemmas = df_pivot['lemma'].unique()
         lemma_correlations = []
-        
+
         for lemma in lemmas:
             lemma_data = df_pivot[df_pivot['lemma'] == lemma]
-            
+
             # Calculate correlation for EACH subjunctive tag separately
             for sbjv_tag in sbjv_tags:
                 # Need variance to calculate correlation
@@ -78,13 +78,13 @@ def analyze_condition_specific_l_shape_granular(df):
                     # Handle zero variance cases (consistency check)
                     base_mean = lemma_data[base_tag].mean()
                     sbjv_mean = lemma_data[sbjv_tag].mean()
-                    
+
                     # Consistent if both are 100% or both are 0%
                     # Or if they are remarkably close (e.g. consistent errors)
                     is_consistent = (base_mean == sbjv_mean) or \
                                   (base_mean > 99 and sbjv_mean > 99) or \
                                   (base_mean < 1 and sbjv_mean < 1)
-                    
+
                     lemma_correlations.append({
                         'condition': condition,
                         'lemma': lemma,
@@ -95,26 +95,26 @@ def analyze_condition_specific_l_shape_granular(df):
 
         results_df = pd.DataFrame(lemma_correlations)
         all_results.append(results_df)
-        
+
         # Statistics for this condition (aggregated across all SBJV tags)
         mean_corr = results_df['correlation'].mean()
         median_corr = results_df['correlation'].median()
-        
+
         # Strong adherence: correlation > 0.8 across the majority of SBJV forms
         # We group by lemma first to see how many lemmas are "L-shape consistent"
         lemma_scores = results_df.groupby('lemma')['correlation'].mean()
         strong_lemmas = len(lemma_scores[lemma_scores > 0.8])
         total_lemmas = len(lemma_scores)
-        
+
         print(f"  Mean Correlation (Granular): {mean_corr:.4f}")
         print(f"  Median Correlation (Granular): {median_corr:.4f}")
         print(f"  Strong L-Shape Lemmas (>0.8 avg corr): {strong_lemmas}/{total_lemmas} ({strong_lemmas/total_lemmas*100:.1f}%)")
 
     if not all_results:
         return None
-        
+
     combined_results = pd.concat(all_results, ignore_index=True)
-    
+
     # Visualization
     plt.figure(figsize=(12, 6))
     sns.boxplot(x='condition', y='correlation', hue='sbjv_tag', data=combined_results, order=sorted(conditions))
@@ -131,9 +131,9 @@ def analyze_condition_specific_l_shape_granular(df):
 def main():
     dataset = "vanilla"
     print(f"Running Granular L-Shape analysis for {dataset} dataset...")
-    
+
     os.makedirs('../../data/analysis/plots/comprehensive_analysis', exist_ok=True)
-    
+
     df = load_data(dataset)
     if df is None:
         return

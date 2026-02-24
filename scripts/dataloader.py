@@ -638,19 +638,19 @@ class AlignTransliteration(AlignSeq2SeqDataLoader, Transliteration):
 
 class TagInBracketsDataLoader(Seq2SeqDataLoader):
     """DataLoader for format where tags are inside <> brackets in the source."""
-    
+
     def __init__(self, train_file, dev_file, test_file=None, shuffle=False):
         # Convert file lists to tuples for source-target pairs
         if isinstance(train_file, list) and len(train_file) == 2:
             self.train_file = tuple(train_file)
         else:
             self.train_file = train_file
-            
+
         if isinstance(dev_file, list) and len(dev_file) == 2:
             self.dev_file = tuple(dev_file)
         else:
             self.dev_file = dev_file
-            
+
         if test_file is not None:
             if isinstance(test_file, list) and len(test_file) == 2:
                 self.test_file = tuple(test_file)
@@ -658,7 +658,7 @@ class TagInBracketsDataLoader(Seq2SeqDataLoader):
                 self.test_file = test_file
         else:
             self.test_file = None
-            
+
         # Initialize parent class without calling build_vocab yet
         super(Dataloader, self).__init__()
         # Ensure device attribute exists for downstream code
@@ -683,7 +683,7 @@ class TagInBracketsDataLoader(Seq2SeqDataLoader):
             self.attr_c2i = None
         self.target_c2i = {c: i for i, c in enumerate(self.target)}
         self.sanity_check()
-    
+
     def build_vocab(self):
         char_set, tag_set = set(), set()
         self.nb_train = 0
@@ -744,7 +744,7 @@ class TagInBracketsDataLoader(Seq2SeqDataLoader):
         """Parse a form like 't ɾ a d ˈ u s e n <V;IND;PRS;3;PL>' into chars and tags."""
         chars = []
         tags = []
-        
+
         # Split by spaces and process each token
         tokens = form.split()
         for token in tokens:
@@ -755,7 +755,7 @@ class TagInBracketsDataLoader(Seq2SeqDataLoader):
             else:
                 # This is a character
                 chars.append(token)
-        
+
         return chars, tags
 
     def _iter_helper(self, file):

@@ -4,8 +4,7 @@ Script to check the errors for each suffix type and check if the wrongly predict
 Usage:
     suffix_error_verb_type.py
 """
-from typing import List
-import sys, os, json
+import sys, os
 import pandas as pd
 
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -156,7 +155,7 @@ if __name__ == "__main__":
         overall_df["accuracy_when_stems_are_correct"] = [
             round(
                 (overall_correct - suffix_errors_when_stems_are_correct)
-                / overall_errors)
+                / overall_errors
                 * 100,
                 2,
             )
@@ -164,7 +163,7 @@ if __name__ == "__main__":
         overall_df["accuracy_when_stems_are_incorrect"] = [
             round(
                 (overall_correct - suffix_errors_when_stems_are_incorrect)
-                / overall_errors)
+                / overall_errors
                 * 100,
                 2,
             )

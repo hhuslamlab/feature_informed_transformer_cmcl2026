@@ -373,7 +373,7 @@ class Trainer(BaseTrainer):
         def evaluate(self, mode, batch_size, epoch_idx, decode_fn):
             self.model.eval()
             sampler, nb_batch = self.iterate_batch(mode, batch_size)
-            
+
             # Use dual-source evaluation format for dev set
             if hasattr(self.data, 'dev_batch_sample_eval') and mode == 'dev':
                 results = self.evaluator.evaluate_all(
@@ -383,7 +383,7 @@ class Trainer(BaseTrainer):
                 results = self.evaluator.evaluate_all(
                     sampler, batch_size, nb_batch, self.model, decode_fn, device=self.device
                 )
-            
+
             for result in results:
                 self.logger.info(
                     f"{mode} {result.long_desc} is {result.res} at epoch {epoch_idx}"
@@ -454,22 +454,22 @@ class Trainer(BaseTrainer):
                 def __init__(self, model, src_features):
                     self.model = model
                     self.src_features = src_features
-                    
+
                 def encode(self, src, src_mask):
                     return self.model.encode_dual_source(src, self.src_features, src_mask, None)
-                    
+
                 def decode(self, enc_hs, src_mask, trg_batch, trg_mask):
                     return self.model.decode(enc_hs, src_mask, trg_batch, trg_mask)
-                    
+
                 def parameters(self):
                     return self.model.parameters()
-                    
+
                 def eval(self):
                     self.model.eval()
-                    
+
                 def train(self):
                     self.model.train()
-            
+
             wrapper = DualSourceWrapper(model, src_features)
             return decode_fn(wrapper, src, src_mask)
 

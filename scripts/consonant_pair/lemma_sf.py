@@ -93,7 +93,7 @@ if __name__ == "__main__":
                 lemmas.append(lemma)
                 tgts_.append(tgt)
                 idxs.append(idx)
-            except:
+            except Exception:
                 pass
 
         for tgt in tgts_:
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                 tgt_sf.append(
                     tgt_stem_final_consonant.replace("ˈ", "").replace(" ", "")
                 )
-            except:
+            except Exception:
                 tgt_sf.append("")
         df["idx"] = idxs
         df["tgt"] = tgts_

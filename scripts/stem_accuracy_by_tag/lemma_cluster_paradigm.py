@@ -11,7 +11,6 @@ For each lemma under 10L_90NL condition:
 5. Save cluster assignments and distance matrices.
 """
 import os
-from typing import List
 
 import numpy as np
 import pandas as pd
@@ -48,12 +47,12 @@ def load_lemma_tag_accuracies(dataset: str, condition: str) -> pd.DataFrame:
     df = pd.read_csv(data_path)
     if "condition" not in df.columns:
         raise ValueError("Data file missing 'condition' column")
-    
+
     # Filter for the specified condition
     df = df[df["condition"] == condition].copy()
     if df.empty:
         raise ValueError(f"No data found for condition: {condition}")
-    
+
     return df
 
 
@@ -86,12 +85,12 @@ def build_distance_matrix(tag_stats: pd.DataFrame) -> pd.DataFrame:
     # Ensure all tags are present, fill missing with NaN
     score_dict = dict(zip(tag_stats["target_tag"], tag_stats["l_shape_score"]))
     scores = np.array([score_dict.get(tag, np.nan) for tag in TAG_ORDER])
-    
+
     # Check if we have all required tags
     if np.any(np.isnan(scores)):
         missing = [tag for i, tag in enumerate(TAG_ORDER) if np.isnan(scores[i])]
         raise ValueError(f"Missing tags for distance matrix: {missing}")
-    
+
     diff = scores[:, None] - scores[None, :]
     distance = np.abs(diff)
     return pd.DataFrame(distance, index=TAG_ORDER, columns=TAG_ORDER)
@@ -122,10 +121,10 @@ def save_lemma_outputs(
 ) -> None:
     """Save distance matrix and cluster assignments for a lemma."""
     os.makedirs(OUTPUT_ROOT, exist_ok=True)
-    
+
     # Sanitize lemma for filename (replace spaces and special chars)
     lemma_safe = lemma.replace(" ", "_").replace("/", "_").replace("\\", "_")
-    
+
     distance.to_csv(
         os.path.join(OUTPUT_ROOT, f"lemma_distance_matrix_{dataset}_{condition}_{lemma_safe}.csv")
     )
@@ -144,33 +143,33 @@ def process_lemma(
     """Process clustering for a single lemma."""
     # Aggregate across models for this lemma
     tag_stats = aggregate_lemma_tag_accuracies(lemma_data)
-    
+
     # Check if we have all 12 tags
     present_tags = set(tag_stats["target_tag"].unique())
     required_tags = set(TAG_ORDER)
     missing_tags = required_tags - present_tags
-    
+
     if missing_tags:
         print(f"  Lemma {lemma}: Missing tags {missing_tags}, skipping...")
         return
-    
+
     # Transform to L-shape scores
     tag_stats = transform_scores(tag_stats)
-    
+
     # Build distance matrix
     try:
         distance = build_distance_matrix(tag_stats)
     except ValueError as e:
         print(f"  Lemma {lemma}: {e}, skipping...")
         return
-    
+
     # Cluster
     score_series = tag_stats.set_index("target_tag")["l_shape_score"]
     cluster_df = cluster_tags(distance, score_series)
-    
+
     # Save outputs
     save_lemma_outputs(distance, cluster_df, lemma, dataset, condition)
-    
+
     print(f"  Processed {lemma}: {len(cluster_df[cluster_df['cluster'] == 0])} tags in cluster 0, "
           f"{len(cluster_df[cluster_df['cluster'] == 1])} tags in cluster 1")
 
@@ -179,16 +178,16 @@ def main(dataset: str = "vanilla", condition: str = "10L_90NL") -> None:
     """Main function to process all lemmas for the specified condition."""
     print(f"Loading lemma-tag accuracy data for {dataset}/{condition}...")
     df = load_lemma_tag_accuracies(dataset, condition)
-    
+
     print(f"Found {len(df)} rows across {df['lemma'].nunique()} lemmas")
-    
+
     # Get unique lemmas
     lemmas = sorted(df["lemma"].unique())
     print(f"Processing {len(lemmas)} lemmas...\n")
-    
+
     processed = 0
     skipped = 0
-    
+
     for lemma in lemmas:
         lemma_data = df[df["lemma"] == lemma].copy()
         try:
@@ -197,7 +196,7 @@ def main(dataset: str = "vanilla", condition: str = "10L_90NL") -> None:
         except Exception as e:
             print(f"  Error processing {lemma}: {e}")
             skipped += 1
-    
+
     print(f"\nCompleted: {processed} lemmas processed, {skipped} skipped")
     print(f"Outputs saved to {OUTPUT_ROOT}")
 

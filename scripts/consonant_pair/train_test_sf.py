@@ -91,7 +91,7 @@ if __name__ == "__main__":
                     )
                     set_l_shaped_tgt_sf.append(l_shaped_lemma_sf_dict[item]["tgt_sf"])
                     set_l_shaped_lemmas.append(item)
-                except:
+                except Exception:
                     pass
             set_lemmas_sf.append(lemma_sf_dict[item]["lemma_sf"])
             set_tgt_sf.append(lemma_sf_dict[item]["tgt_sf"])

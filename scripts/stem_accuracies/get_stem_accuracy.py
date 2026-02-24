@@ -28,7 +28,7 @@ def get_stem(form, suffixes):
 def process_predictions(pred_type, pred_dir_name):
     """Process predictions for a given prediction type"""
     print(f"\nProcessing {pred_type} predictions...")
-    
+
     ar_suffixes = list(AR_SUFFIX_DICT.values())
     er_suffixes = list(ER_SUFFIX_DICT.values())
     ir_suffixes = list(IR_SUFFIX_DICT.values())
@@ -62,7 +62,7 @@ def process_predictions(pred_type, pred_dir_name):
                             # Normalize: remove spaces, remove stress markers, then strip (matching calc_overall_accuracy.py)
                             pred = line.replace(" ", "").replace("ˈ", "").strip()
                             pred_data.append((len(pred_data), pred))  # Use line number as index
-                
+
                 # Sort by index to ensure correct alignment with test data
                 pred_data.sort(key=lambda x: x[0])
                 preds = [pred for _, pred in pred_data]
@@ -78,7 +78,7 @@ def process_predictions(pred_type, pred_dir_name):
             else:
                 print(f"    No prediction file found for {model} in {pred_dir_name}")
                 continue
-            
+
             try:
                 df_pred = pd.read_csv(pred_file, sep='\t')
                 # Normalize: remove spaces, remove stress markers, then strip (matching calc_overall_accuracy.py)
@@ -131,7 +131,7 @@ def process_predictions(pred_type, pred_dir_name):
         stems_df["preds_stems"] = preds_stems
         stems_df["test_stems"] = test_stems
         stems_df["shapes"] = shapes_list
-        
+
         # For vanilla, save in existing location for backward compatibility
         if pred_type == "vanilla":
             stems_df.to_csv(f"../../data/analysis/stems/stems_{model}.csv", index=False)

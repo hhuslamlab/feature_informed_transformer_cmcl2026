@@ -50,7 +50,7 @@ if __name__ == "__main__":
                     lemma_stem_final_consonant.replace("ˈ", "").replace(" ", "")
                 )
                 preds_.append(p)
-            except:
+            except Exception:
                 pass
         df["pred"] = preds_
         df["lemma"] = l_shape_lemmas

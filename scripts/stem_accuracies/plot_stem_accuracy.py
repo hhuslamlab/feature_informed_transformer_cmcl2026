@@ -38,10 +38,10 @@ def final(filename, dataset="vanilla"):
         filepath = f"../../data/analysis/stem_accuracies/stem_acc_{filename}.csv"
     else:
         filepath = f"../../data/analysis/stem_accuracies/{dataset}/stem_acc_{filename}.csv"
-    
+
     if not os.path.exists(filepath):
         return None
-    
+
     data = pd.read_csv(filepath)
     return {
         "l_acc": round(data["l_acc"].tolist()[0]),
@@ -71,7 +71,7 @@ def create_combined_stem_plot():
             res_10L_90NL = [final(item, dataset_name) for item in condition_10L_90NL]
             res_50L_50NL = [final(item, dataset_name) for item in condition_50L_50NL]
             res_90L_10NL = [final(item, dataset_name) for item in condition_90L_10NL]
-            
+
             # Filter out None values (missing files)
             res_10L_90NL = [r for r in res_10L_90NL if r is not None]
             res_50L_50NL = [r for r in res_50L_50NL if r is not None]

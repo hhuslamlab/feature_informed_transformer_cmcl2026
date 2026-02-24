@@ -79,7 +79,7 @@ def create_combined_l_nl_plot():
             res_10L_90NL = [final(item, dataset_name) for item in condition_10L_90NL]
             res_50L_50NL = [final(item, dataset_name) for item in condition_50L_50NL]
             res_90L_10NL = [final(item, dataset_name) for item in condition_90L_10NL]
-            
+
             # Filter out None values (missing files)
             res_10L_90NL = [r for r in res_10L_90NL if r is not None]
             res_50L_50NL = [r for r in res_50L_50NL if r is not None]

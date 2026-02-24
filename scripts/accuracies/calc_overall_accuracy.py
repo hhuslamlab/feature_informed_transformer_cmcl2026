@@ -32,33 +32,33 @@ def calculate_accuracy_sep_char(prediction_file, target_file):
     try:
         # Read prediction file (CSV format: index,prediction)
         df_pred = pd.read_csv(prediction_file, header=None, names=['index', 'prediction'])
-        
+
         # Sort by index in ascending order
         df_pred = df_pred.sort_values('index', ascending=True).reset_index(drop=True)
-        
+
         # Read target file (space-separated characters, one per line)
         with open(target_file, 'r', encoding='utf-8') as f:
             targets = [line.strip() for line in f.readlines()]
-        
+
         # Check if lengths match
         if len(df_pred) != len(targets):
             print(f"Warning: Length mismatch - predictions: {len(df_pred)}, targets: {len(targets)}")
             min_len = min(len(df_pred), len(targets))
             df_pred = df_pred.iloc[:min_len]
             targets = targets[:min_len]
-        
+
         # Normalize predictions and targets (remove spaces and stress markers)
         # Only use the 'prediction' column (index and comma already removed by pandas)
         preds_normalized = df_pred['prediction'].astype(str).str.replace(' ', '').str.replace('ˈ', '').str.strip()
         targets_normalized = pd.Series(targets).str.replace(' ', '').str.replace('ˈ', '').str.strip()
-        
+
         # Calculate accuracy
         correct = (preds_normalized == targets_normalized).sum()
         total = len(df_pred)
         accuracy = (correct / total) * 100 if total > 0 else 0
-        
+
         return accuracy
-    
+
     except Exception as e:
         print(f"Error processing {prediction_file}: {e}")
         return None
@@ -138,7 +138,7 @@ def process_directory_sep_char(predictions_dir, output_filename, base_path):
         filename = txt_file.name
         # Remove .txt extension to get model name (e.g., 10L_90NL_1_1)
         short_filename = filename.replace('.txt', '')
-        
+
         # Parse model name to get condition and run
         # Format: {condition}_{run}_{split} (e.g., 10L_90NL_1_1)
         parts = short_filename.split('_')
@@ -146,18 +146,18 @@ def process_directory_sep_char(predictions_dir, output_filename, base_path):
             condition = f"{parts[0]}_{parts[1]}"  # e.g., 10L_90NL
             run = parts[2]  # e.g., 1
             model = short_filename  # e.g., 10L_90NL_1_1
-            
+
             # Find target file (targets are in data/{condition}/test/)
             data_root = Path("../../data")
             target_file = data_root / condition / "test" / f"run{run}" / f"test.{model}.tgt"
-            
+
             if not target_file.exists():
                 print(f"  Warning: Target file not found: {target_file}")
                 continue
-            
+
             print(f"Processing {filename}...")
             accuracy = calculate_accuracy_sep_char(txt_file, target_file)
-            
+
             if accuracy is not None:
                 results.append({
                     'filename': short_filename,

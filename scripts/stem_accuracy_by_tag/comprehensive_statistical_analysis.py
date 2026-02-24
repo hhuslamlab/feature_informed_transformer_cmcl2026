@@ -33,15 +33,15 @@ def analyze_condition_specific_l_shape(df):
     print("="*60)
 
     conditions = df['condition'].unique()
-    
+
     all_results = []
-    
+
     for condition in conditions:
         print(f"\nProcessing Condition: {condition}")
-        
+
         # Filter data for this condition
         cond_df = df[df['condition'] == condition]
-        
+
         # Pivot
         df_pivot = cond_df.pivot_table(
             index=['lemma', 'model'],
@@ -51,20 +51,20 @@ def analyze_condition_specific_l_shape(df):
 
         base_tag = "V;IND;PRS;1;SG"
         sbjv_tags = [col for col in df_pivot.columns if "V;SBJV" in col]
-        
+
         if base_tag not in df_pivot.columns:
             print(f"  Error: Base tag {base_tag} not found in data.")
             continue
 
         # Calculate mean SBJV accuracy
         df_pivot['mean_sbjv_acc'] = df_pivot[sbjv_tags].mean(axis=1)
-        
+
         lemmas = df_pivot['lemma'].unique()
         lemma_correlations = []
-        
+
         for lemma in lemmas:
             lemma_data = df_pivot[df_pivot['lemma'] == lemma]
-            
+
             # Need variance to calculate correlation
             if len(lemma_data) > 2 and lemma_data[base_tag].std() > 0 and lemma_data['mean_sbjv_acc'].std() > 0:
                 corr, p_val = stats.pearsonr(lemma_data[base_tag], lemma_data['mean_sbjv_acc'])
@@ -80,11 +80,11 @@ def analyze_condition_specific_l_shape(df):
                 base_mean = lemma_data[base_tag].mean()
                 sbjv_mean = lemma_data['mean_sbjv_acc'].mean()
                 is_consistent = (base_mean == 100 and sbjv_mean == 100) or (base_mean == 0 and sbjv_mean == 0)
-                
+
                 lemma_correlations.append({
                     'condition': condition,
                     'lemma': lemma,
-                    'correlation': 1.0 if is_consistent else 0.0, 
+                    'correlation': 1.0 if is_consistent else 0.0,
                     'base_mean': base_mean,
                     'sbjv_mean': sbjv_mean,
                     'note': 'Zero variance'
@@ -92,13 +92,13 @@ def analyze_condition_specific_l_shape(df):
 
         results_df = pd.DataFrame(lemma_correlations)
         all_results.append(results_df)
-        
+
         # Statistics for this condition
         mean_corr = results_df['correlation'].mean()
         median_corr = results_df['correlation'].median()
         strong_lemmas = len(results_df[results_df['correlation'] > 0.8])
         total_lemmas = len(results_df)
-        
+
         print(f"  Mean Correlation: {mean_corr:.4f}")
         print(f"  Median Correlation: {median_corr:.4f}")
         print(f"  Strong L-Shape Lemmas (>0.8): {strong_lemmas}/{total_lemmas} ({strong_lemmas/total_lemmas*100:.1f}%)")
@@ -106,9 +106,9 @@ def analyze_condition_specific_l_shape(df):
     # Combine all results for plotting comparison
     if not all_results:
         return None
-        
+
     combined_results = pd.concat(all_results, ignore_index=True)
-    
+
     # Visualization: Boxplot comparison
     plt.figure(figsize=(10, 6))
     sns.boxplot(x='condition', y='correlation', data=combined_results, order=sorted(conditions))
@@ -118,13 +118,13 @@ def analyze_condition_specific_l_shape(df):
     plt.tight_layout()
     plt.savefig('../../data/analysis/plots/comprehensive_analysis/l_shape_by_condition_boxplot.png', dpi=300)
     plt.close()
-    
+
     # Visualization: Distribution comparison (KDE)
     plt.figure(figsize=(10, 6))
     for condition in sorted(conditions):
         subset = combined_results[combined_results['condition'] == condition]
         sns.kdeplot(subset['correlation'], label=condition, clip=(-1, 1), bw_adjust=0.6)
-    
+
     plt.title('Distribution of L-Shape Correlations by Condition')
     plt.xlabel('Correlation Coefficient')
     plt.legend()
@@ -137,9 +137,9 @@ def analyze_condition_specific_l_shape(df):
 def main():
     dataset = "vanilla"
     print(f"Running Condition-Specific L-Shape analysis for {dataset} dataset...")
-    
+
     os.makedirs('../../data/analysis/plots/comprehensive_analysis', exist_ok=True)
-    
+
     df = load_data(dataset)
     if df is None:
         return
